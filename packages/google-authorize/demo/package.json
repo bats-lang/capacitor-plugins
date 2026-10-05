@@ -3,7 +3,7 @@
   "private": true,
   "description": "Proof of concept (bats-lang/quire#321, Phase 0, step 3): google-authorize in the demo app of quire#316 (package io.github.batslang.googlesignindemo)",
   "dependencies": {
-    "@bats-lang/capacitor-google-authorize": "github:bats-lang/capacitor-plugins#84a6d41901100d4b8cb1785d64cb25259c8df400&path:/packages/google-authorize",
+    "@bats-lang/capacitor-google-authorize": "github:bats-lang/capacitor-plugins#5c3d11c3cd5e390924570674f70a29754b93e8a2&path:/packages/google-authorize",
     "@capacitor/android": "8.5.2",
     "@capacitor/core": "8.5.2"
   },

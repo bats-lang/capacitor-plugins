@@ -13,10 +13,11 @@
 <body>
 <h1>google-authorize</h1>
 <p>Scope: drive.appdata</p>
-<button id="silent">Authorize silently</button>
-<button id="interactive">Authorize (interactive)</button>
+<button id="silent">authorizationForScopes (no UI)</button>
+<button id="interactive">authorizeScopes (may prompt)</button>
 <button id="check">Check token</button>
 <button id="account">Account address (Drive about.get)</button>
+<button id="clear-token">clearAuthorizationToken (the last token)</button>
 <button id="revoke">Revoke</button>
 <button id="clear">Clear log</button>
 <pre id="log"></pre>

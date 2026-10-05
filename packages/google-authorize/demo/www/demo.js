@@ -14,12 +14,38 @@ function plugin() {
   return window.Capacitor.Plugins.GoogleAuthorize;
 }
 
-async function authorize(interactive) {
-  log('authorize({ interactive: ' + interactive + ' })');
+// every token seen, to tell whether a call hands back a cached one
+const seen = [];
+
+function tokenLine(authorization) {
+  const token = authorization.accessToken;
+  const before = seen.indexOf(token);
+  if (before < 0) seen.push(token);
+  return 'token ' + token.slice(0, 8) + '... (' + (before < 0 ? 'new' : 'SAME as token #' + (before + 1)) + '), email ' + authorization.email;
+}
+
+async function authorize(prompting) {
+  const method = prompting ? 'authorizeScopes' : 'authorizationForScopes';
+  log(method + '()');
   try {
-    const answer = await plugin().authorize({ clientId, scopes, interactive });
-    token = answer.accessToken;
-    log('-> token ' + token.slice(0, 8) + '..., email ' + answer.email);
+    const answer = await plugin()[method]({ clientId, scopes });
+    if (answer.authorization) {
+      token = answer.authorization.accessToken;
+      log('-> ' + tokenLine(answer.authorization));
+    } else {
+      log('-> null (consent needed)');
+    }
+  } catch (error) {
+    log('-> rejected, code ' + error.code + ': ' + error.message);
+  }
+}
+
+async function clearToken() {
+  if (!token) return log('no token yet');
+  log('clearAuthorizationToken(' + token.slice(0, 8) + '...)');
+  try {
+    await plugin().clearAuthorizationToken({ accessToken: token });
+    log('-> cleared');
   } catch (error) {
     log('-> rejected, code ' + error.code + ': ' + error.message);
   }
@@ -55,6 +81,7 @@ document.getElementById('silent').addEventListener('click', () => authorize(fals
 document.getElementById('interactive').addEventListener('click', () => authorize(true));
 document.getElementById('check').addEventListener('click', () => checkToken().catch((error) => log('tokeninfo failed: ' + error)));
 document.getElementById('account').addEventListener('click', () => accountAddress().catch((error) => log('about.get failed: ' + error)));
+document.getElementById('clear-token').addEventListener('click', clearToken);
 document.getElementById('revoke').addEventListener('click', revoke);
 document.getElementById('clear').addEventListener('click', () => { document.getElementById('log').textContent = ''; });
 log('ready: plugin ' + (window.Capacitor && window.Capacitor.isPluginAvailable('GoogleAuthorize') ? 'available' : 'NOT available'));
