@@ -32,7 +32,11 @@ nodeLinker: hoisted
 
 ## Plugins
 
-None yet. Each plugin's own README documents its API.
+Each plugin's own README documents its API.
+
+- [google-authorize](packages/google-authorize): Google authorization on
+  Android with no sign-in (Play services' `AuthorizationClient`), shaped
+  as Flutter's google_sign_in authorization client.
 
 ## Working here
 

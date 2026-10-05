@@ -1,0 +1,276 @@
+{
+  "api": {
+    "name": "GoogleAuthorizePlugin",
+    "slug": "googleauthorizeplugin",
+    "docs": "Google authorization with no sign-in, over Play services' `AuthorizationClient` on Android, shaped as Flutter's\ngoogle_sign_in 7.x `GoogleSignInAuthorizationClient`. Android only: in a browser and on iOS each method rejects\nwith Capacitor's `UNIMPLEMENTED`.",
+    "tags": [],
+    "methods": [
+      {
+        "name": "authorizationForScopes",
+        "signature": "(options: ScopesOptions) => Promise<AuthorizationAnswer>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "ScopesOptions"
+          }
+        ],
+        "returns": "Promise<AuthorizationAnswer>",
+        "tags": [
+          {
+            "name": "since",
+            "text": "0.1.0"
+          }
+        ],
+        "docs": "The access token for the scopes when they are already granted, without showing anything\n(`AuthorizationClient.authorize`, with no resolution). When the reader must consent first, nothing is shown and\nthe answer's `authorization` is `null`.\n\nRejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`), or `INVALID_OPTIONS`.",
+        "complexTypes": [
+          "AuthorizationAnswer",
+          "ScopesOptions"
+        ],
+        "slug": "authorizationforscopes"
+      },
+      {
+        "name": "authorizeScopes",
+        "signature": "(options: ScopesOptions) => Promise<GrantedAuthorization>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "ScopesOptions"
+          }
+        ],
+        "returns": "Promise<GrantedAuthorization>",
+        "tags": [
+          {
+            "name": "since",
+            "text": "0.1.0"
+          }
+        ],
+        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out, `CONSENT_SHOWING` while another call's consent screen is\nshowing, the platform's code (`CommonStatusCodes`' name), or `INVALID_OPTIONS`.",
+        "complexTypes": [
+          "GrantedAuthorization",
+          "ScopesOptions"
+        ],
+        "slug": "authorizescopes"
+      },
+      {
+        "name": "clearAuthorizationToken",
+        "signature": "(options: ClearOptions) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "ClearOptions"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [
+          {
+            "name": "since",
+            "text": "0.1.0"
+          }
+        ],
+        "docs": "Removes the access token from Play services' cache (`AuthorizationClient.clearToken`), so that the next\nauthorization gets a new one: for a token that Google refused.\n\nRejects with the platform's code, or `INVALID_OPTIONS`.",
+        "complexTypes": [
+          "ClearOptions"
+        ],
+        "slug": "clearauthorizationtoken"
+      },
+      {
+        "name": "revokeAccess",
+        "signature": "(options: RevokeOptions) => Promise<void>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "RevokeOptions"
+          }
+        ],
+        "returns": "Promise<void>",
+        "tags": [
+          {
+            "name": "since",
+            "text": "0.1.0"
+          }
+        ],
+        "docs": "Takes back the account's grant of the scopes (`AuthorizationClient.revokeAccess`).\n\nRejects with the platform's code, or `INVALID_OPTIONS`.",
+        "complexTypes": [
+          "RevokeOptions"
+        ],
+        "slug": "revokeaccess"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [
+    {
+      "name": "AuthorizationAnswer",
+      "slug": "authorizationanswer",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "authorization",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The authorization, or `null` when the reader must consent first. (A plugin call resolves with an object, never\nwith `null` itself.)",
+          "complexTypes": [
+            "Authorization"
+          ],
+          "type": "Authorization"
+        }
+      ]
+    },
+    {
+      "name": "Authorization",
+      "slug": "authorization",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "accessToken",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The access token.",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "grantedScopes",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The scopes the reader granted.",
+          "complexTypes": [],
+          "type": "string[]"
+        },
+        {
+          "name": "account",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The Google account the grant is for (its name on Android, an email address), or `null` when the result names\nnone.",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "ScopesOptions",
+      "slug": "scopesoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "scopes",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The OAuth scopes, at least one, such as `https://www.googleapis.com/auth/drive.appdata`.",
+          "complexTypes": [],
+          "type": "string[]"
+        }
+      ]
+    },
+    {
+      "name": "GrantedAuthorization",
+      "slug": "grantedauthorization",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "authorization",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The authorization.",
+          "complexTypes": [
+            "Authorization"
+          ],
+          "type": "Authorization"
+        }
+      ]
+    },
+    {
+      "name": "ClearOptions",
+      "slug": "clearoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "accessToken",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The access token to remove.",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "RevokeOptions",
+      "slug": "revokeoptions",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "account",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The Google account whose grant is taken back: an authorization's `account`.",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "scopes",
+          "tags": [
+            {
+              "text": "0.1.0",
+              "name": "since"
+            }
+          ],
+          "docs": "The scopes to take back, at least one.",
+          "complexTypes": [],
+          "type": "string[]"
+        }
+      ]
+    }
+  ],
+  "enums": [],
+  "typeAliases": [],
+  "pluginConfigs": []
+}
