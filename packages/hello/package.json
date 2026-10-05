@@ -1,0 +1,29 @@
+{
+  "name": "@bats-lang/capacitor-hello",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Proof of concept only (bats-lang/quire#321, Phase 0): a one-method plugin installed from a subfolder of this repository",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "android/src/main/",
+    "android/build.gradle",
+    "dist/"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@capacitor/core": "8.5.2",
+    "typescript": "5.9.3"
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  },
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  }
+}
