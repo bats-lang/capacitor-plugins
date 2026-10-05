@@ -1,0 +1,10 @@
+{
+  "appId": "io.github.batslang.googlesignindemo",
+  "appName": "Authorize demo",
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

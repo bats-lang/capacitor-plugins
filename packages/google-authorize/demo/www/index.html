@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>google-authorize demo</title>
+<style>
+  body { font-family: sans-serif; margin: 16px; }
+  button { display: block; width: 100%; min-height: 48px; margin: 8px 0; font-size: 16px; }
+  pre { white-space: pre-wrap; word-break: break-all; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>google-authorize</h1>
+<p>Scope: drive.appdata</p>
+<button id="silent">Authorize silently</button>
+<button id="interactive">Authorize (interactive)</button>
+<button id="check">Check token</button>
+<button id="account">Account address (Drive about.get)</button>
+<button id="revoke">Revoke</button>
+<button id="clear">Clear log</button>
+<pre id="log"></pre>
+<script src="demo.js"></script>
+</body>
+</html>
