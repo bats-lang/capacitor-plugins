@@ -74,7 +74,7 @@ packages/<name>/
 An app installs a plugin from git with no build step, so `dist/` (and
 the README's API section) is committed. CI builds every package from its
 source and fails when anything committed differs from what the build
-writes: run `corepack pnpm run build` and commit the result with the
+writes: run `corepack pnpm --recursive run build` and commit the result with the
 change to the source.
 
 ## No releases, no registry

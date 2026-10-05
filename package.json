@@ -8,8 +8,7 @@
   },
   "scripts": {
     "lint": "eslint . && prettier --check .",
-    "format": "eslint --fix . && prettier --write .",
-    "build": "pnpm --recursive --workspace-concurrency=1 run build"
+    "format": "eslint --fix . && prettier --write ."
   },
   "devDependencies": {
     "@capacitor/docgen": "0.3.1",

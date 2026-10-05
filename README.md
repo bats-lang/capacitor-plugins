@@ -39,7 +39,7 @@ None yet. Each plugin's own README documents its API.
 ```sh
 corepack pnpm install        # pnpm as package.json pins it
 corepack pnpm run lint       # ESLint and Prettier
-corepack pnpm run build      # each package: tsc, Rollup, docgen
+corepack pnpm --recursive run build   # each package: tsc, Rollup, docgen
 ```
 
 Each package's Android project builds with its own Gradle wrapper

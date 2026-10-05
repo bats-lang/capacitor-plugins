@@ -39,7 +39,7 @@ jobs:
         run: corepack pnpm run lint
 
       - name: Build each package
-        run: corepack pnpm run build
+        run: corepack pnpm --recursive --workspace-concurrency=1 run build
 
       - name: The committed files are what the source builds
         run: |
@@ -47,7 +47,7 @@ jobs:
           if [ -s "$RUNNER_TEMP/changed" ]; then
             cat "$RUNNER_TEMP/changed"
             git diff
-            echo "::error::The build changed committed files (a package's dist/ or README.md): run 'corepack pnpm run build' and commit what it writes"
+            echo "::error::The build changed committed files (a package's dist/ or README.md): run 'corepack pnpm --recursive run build' and commit what it writes"
             exit 1
           fi
 
