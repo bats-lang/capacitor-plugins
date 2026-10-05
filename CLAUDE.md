@@ -110,7 +110,7 @@ keeps passing:
 requires. It installs, lints and checks the format (ESLint, Prettier,
 with Prettier's Java plugin for the Android code), builds each package
 and checks that nothing committed changed, then runs each Android
-project's `./gradlew build test`. Never skip, disable or quarantine a
+project's `./gradlew :build :test`. Never skip, disable or quarantine a
 test, and never re-run hoping for green: a red CI is root-caused and
 fixed.
 

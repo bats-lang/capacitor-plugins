@@ -73,6 +73,7 @@ jobs:
           shopt -s nullglob
           for project in packages/*/android; do
             echo "::group::$project"
-            (cd "$project" && ./gradlew --no-daemon --stacktrace build test)
+            # The plugin's own project (:), not Capacitor's library it includes
+            (cd "$project" && ./gradlew --no-daemon --stacktrace :build :test)
             echo "::endgroup::"
           done

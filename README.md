@@ -47,6 +47,6 @@ corepack pnpm --recursive run build   # each package: tsc, Rollup, docgen
 ```
 
 Each package's Android project builds with its own Gradle wrapper
-(`./gradlew build test` in `packages/<name>/android`) on JDK 21. The
+(`./gradlew :build :test` in `packages/<name>/android`) on JDK 21. The
 rules (minimal wrappers, the justification a new plugin needs, the
 adversarial review, the pinned CI) are in [CLAUDE.md](CLAUDE.md).
