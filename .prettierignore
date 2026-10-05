@@ -1,0 +1,7 @@
+node_modules/
+build/
+.gradle/
+pnpm-lock.yaml
+# What each package's build writes, checked by CI against a fresh build
+packages/*/dist/
+packages/*/README.md
