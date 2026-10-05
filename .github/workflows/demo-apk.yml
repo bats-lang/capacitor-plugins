@@ -5,10 +5,8 @@ name: demo-apk
 # it from GitHub for the device check of bats-lang/quire#321 (Phase 0,
 # step 3). The APK is checked (verify-apk.sh: the demo key's SHA-1, the
 # package of quire#320's OAuth client, GoogleAuthorize registered) and
-# uploaded as the artifact google-authorize-demo-apk (a zip, kept 90
-# days). From main it is also the one asset of the prerelease
-# demo-google-authorize, made again at each run, so a phone downloads the
-# APK itself. Pinned as check.yml is: each action by its commit, Node by
+# uploaded as the artifact google-authorize-demo-apk (a zip holding the
+# APK, kept 90 days; a phone's Files app extracts it). Pinned as check.yml is: each action by its commit, Node by
 # .nvmrc, pnpm by packageManager, the JDK by its release, Gradle by its
 # distribution's SHA-256 (android-project.sh) and the Android SDK's packages by
 # their versions.
@@ -19,8 +17,7 @@ on:
     paths:
       - 'packages/google-authorize/**'
       - '.github/workflows/demo-apk.yml'
-  # A pull request that changes the demo builds and checks it too, with
-  # no prerelease
+  # A pull request that changes the demo builds and checks it too
   pull_request:
     branches: [main]
     paths:
@@ -97,38 +94,3 @@ jobs:
           path: ${{ runner.temp }}/apk/google-authorize-demo.apk
           if-no-files-found: error
           retention-days: 90
-
-  # Main's APK as a prerelease asset, downloadable without unzipping. Only
-  # this job can write, and it runs nothing from the checkout.
-  prerelease:
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: google-authorize-demo-apk
-          path: apk
-
-      - name: Make the prerelease demo-google-authorize again, at this commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          sha256=$(sha256sum apk/google-authorize-demo.apk | cut -d' ' -f1)
-          cat > notes.md <<EOF
-          The google-authorize demo app (bats-lang/quire#321, Phase 0 step 3), built from ${GITHUB_SHA} by ${RUN_URL}.
-          Not a release of the plugin: apps install plugins from a commit of main (README.md).
-
-          Signed with the demo's throwaway key (SHA-1 7F:D1:24:96:68:77:49:DE:90:B0:BB:22:D0:4E:60:67:BB:61:80:B9), package io.github.batslang.googlesignindemo, as bats-lang/quire#320's OAuth client.
-          SHA-256 of the APK: ${sha256}
-          EOF
-          if gh release view demo-google-authorize > /dev/null 2>&1; then
-            gh release delete demo-google-authorize --cleanup-tag --yes
-          fi
-          gh release create demo-google-authorize apk/google-authorize-demo.apk \
-            --prerelease --latest=false --target "$GITHUB_SHA" \
-            --title 'google-authorize demo APK' --notes-file notes.md

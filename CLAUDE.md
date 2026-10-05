@@ -79,8 +79,8 @@ change to the source.
 
 ## No releases, no registry
 
-Nothing is published to npm and there are no release branches or tags
-of a plugin. An app pins a commit of main and the package's folder:
+Nothing is published to npm and there are no release branches or tags.
+An app pins a commit of main and the package's folder:
 
 ```
 "@bats-lang/capacitor-<name>": "github:bats-lang/capacitor-plugins#<commit>&path:/packages/<name>"
@@ -99,10 +99,8 @@ package, so it uses the plugin as the workspace builds it), for checking
 the plugin on a device. `google-authorize`'s (bats-lang/quire#321) is
 built by `.github/workflows/demo-apk.yml` into an APK signed with a
 throwaway, public demo key, checked (the key's SHA-1, the package), and
-kept as the run's artifact and as the one asset of the prerelease
-`demo-google-authorize`, made again from main at each run. That
-prerelease is the owner's download, not a release of the plugin: no app
-installs from it.
+kept as the run's artifact `google-authorize-demo-apk` (90 days), the
+owner's download. No app installs from it.
 
 ## CI is pinned
 

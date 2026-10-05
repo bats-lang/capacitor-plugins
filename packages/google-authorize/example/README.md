@@ -23,15 +23,12 @@ package `io.github.batslang.googlesignindemo`.
 ## Getting the APK
 
 `.github/workflows/demo-apk.yml` builds it on each change to
-`packages/google-authorize/` on main, and by hand (Run workflow):
-
-- the prerelease `demo-google-authorize`, whose asset
-  `google-authorize-demo.apk` is the APK itself:
-  https://github.com/bats-lang/capacitor-plugins/releases/download/demo-google-authorize/google-authorize-demo.apk
-- the run's artifact `google-authorize-demo-apk`, a zip holding the APK.
-
-Android installs it once the browser (or Files) is allowed to install
-unknown apps.
+`packages/google-authorize/` on main, and by hand (Run workflow). Each
+run keeps it for 90 days as the artifact `google-authorize-demo-apk`, a
+zip holding `google-authorize-demo.apk`. On the phone: download the
+artifact from the run's page (signed in to GitHub), open the zip in
+Files to extract it, and tap the APK (allowing Files to install unknown
+apps when Android asks).
 
 ## The demo key
 
