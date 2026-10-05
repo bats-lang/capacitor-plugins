@@ -1,0 +1,78 @@
+name: check
+
+# The one required check (CLAUDE.md, "CI"): lint and format, each
+# package built from its source with the committed dist/ and API docs
+# exactly what that build writes, and each package's Android project
+# built and tested. Every action is pinned by commit, Node by .nvmrc,
+# pnpm by package.json's packageManager (through Node's corepack), the
+# JDK by its exact release and Gradle by each project's wrapper.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Install
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Lint and format
+        run: corepack pnpm run lint
+
+      - name: Build each package
+        run: corepack pnpm --recursive --workspace-concurrency=1 run build
+
+      - name: The committed files are what the source builds
+        run: |
+          git status --porcelain --untracked-files=all > "$RUNNER_TEMP/changed"
+          if [ -s "$RUNNER_TEMP/changed" ]; then
+            cat "$RUNNER_TEMP/changed"
+            git diff
+            echo "::error::The build changed committed files (a package's dist/ or README.md): run 'corepack pnpm --recursive run build' and commit what it writes"
+            exit 1
+          fi
+
+      - name: Count the Android projects
+        id: android
+        run: |
+          shopt -s nullglob
+          projects=(packages/*/android)
+          echo "count=${#projects[@]}" >> "$GITHUB_OUTPUT"
+
+      # Each Android project's own wrapper, every one of them
+      - uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          min-wrapper-count: ${{ steps.android.outputs.count }}
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+
+      - name: Android, each package
+        run: |
+          shopt -s nullglob
+          for project in packages/*/android; do
+            echo "::group::$project"
+            (cd "$project" && ./gradlew --no-daemon --stacktrace build test)
+            echo "::endgroup::"
+          done

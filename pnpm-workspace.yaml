@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+
+# Each plugin's dependencies at the root's node_modules, as an app's
+# hoisted install has them: its Android project finds Capacitor's at
+# ../../../node_modules/@capacitor/android. pnpm 11 and later read this
+# here, not from .npmrc (bats-lang/quire#321, Phase 0).
+nodeLinker: hoisted
