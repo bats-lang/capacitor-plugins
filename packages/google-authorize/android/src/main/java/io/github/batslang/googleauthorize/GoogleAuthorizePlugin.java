@@ -15,6 +15,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.google.android.gms.auth.api.identity.AuthorizationClient;
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.AuthorizationResult;
+import com.google.android.gms.auth.api.identity.ClearTokenRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.RevokeAccessRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -25,15 +26,16 @@ import java.util.List;
 import org.json.JSONException;
 
 // Proof of concept (bats-lang/quire#321, Phase 0): Phase 2's API over
-// Android's AuthorizationClient. authorize gives an access token for the
-// scopes with no UI once they are granted; when consent is needed it
-// rejects NEEDS_INTERACTION, or with interactive true shows Google's
-// consent and rejects CANCELED when the reader backs out. revoke takes
-// the grant back (revokeAccess, in play-services-auth 21.5.0).
+// Android's AuthorizationClient, shaped as Flutter's google_sign_in 7.x
+// authorization client. authorizationForScopes never shows UI: the token
+// once the scopes are granted, else null. authorizeScopes may show
+// Google's consent, and rejects CANCELED when the reader backs out.
+// clearAuthorizationToken drops a token from Play services' cache
+// (clearToken); revoke takes the grant back (revokeAccess). Both are in
+// play-services-auth 21.5.0.
 @CapacitorPlugin(name = "GoogleAuthorize")
 public class GoogleAuthorizePlugin extends Plugin {
 
-    public static final String NEEDS_INTERACTION = "NEEDS_INTERACTION";
     public static final String CANCELED = "CANCELED";
     public static final String ALREADY_WAITING = "ALREADY_WAITING";
     public static final String NO_ACCOUNT = "NO_ACCOUNT";
@@ -71,18 +73,18 @@ public class GoogleAuthorizePlugin extends Plugin {
     }
 
     private static void resolveToken(PluginCall call, AuthorizationResult result) {
-        JSObject answer = new JSObject();
-        answer.put("accessToken", result.getAccessToken());
+        JSObject authorization = new JSObject();
+        authorization.put("accessToken", result.getAccessToken());
         // POC only, for Phase 4's question: the account the grant is for,
         // when the result names it
         GoogleSignInAccount account = result.toGoogleSignInAccount();
-        answer.put("email", account == null ? null : account.getEmail());
+        authorization.put("email", account == null ? null : account.getEmail());
+        JSObject answer = new JSObject();
+        answer.put("authorization", authorization);
         call.resolve(answer);
     }
 
-    @PluginMethod
-    public void authorize(PluginCall call) {
-        boolean interactive = Boolean.TRUE.equals(call.getBoolean("interactive", false));
+    private void authorize(PluginCall call, boolean interactive) {
         AuthorizationRequest request;
         try {
             request = AuthorizationRequest.builder().setRequestedScopes(scopesOf(call)).build();
@@ -96,7 +98,10 @@ public class GoogleAuthorizePlugin extends Plugin {
                 if (!result.hasResolution()) {
                     resolveToken(call, result);
                 } else if (!interactive) {
-                    call.reject("The reader must consent first", NEEDS_INTERACTION);
+                    // consent is needed: null, as Flutter's authorizationForScopes
+                    JSObject nothing = new JSObject();
+                    nothing.put("authorization", JSObject.NULL);
+                    call.resolve(nothing);
                 } else if (waitingCall != null) {
                     call.reject("Another authorization is showing its consent", ALREADY_WAITING);
                 } else {
@@ -104,6 +109,29 @@ public class GoogleAuthorizePlugin extends Plugin {
                     consentLauncher.launch(new IntentSenderRequest.Builder(result.getPendingIntent().getIntentSender()).build());
                 }
             })
+            .addOnFailureListener(exception -> rejectFailure(call, exception));
+    }
+
+    @PluginMethod
+    public void authorizationForScopes(PluginCall call) {
+        authorize(call, false);
+    }
+
+    @PluginMethod
+    public void authorizeScopes(PluginCall call) {
+        authorize(call, true);
+    }
+
+    @PluginMethod
+    public void clearAuthorizationToken(PluginCall call) {
+        String token = call.getString("accessToken");
+        if (token == null) {
+            call.reject("No accessToken given", "NO_TOKEN");
+            return;
+        }
+        client()
+            .clearToken(ClearTokenRequest.builder().setToken(token).build())
+            .addOnSuccessListener(nothing -> call.resolve())
             .addOnFailureListener(exception -> rejectFailure(call, exception));
     }
 
