@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - packages/*/example
 
 # Each plugin's dependencies at the root's node_modules, as an app's
 # hoisted install has them: its Android project finds Capacitor's at

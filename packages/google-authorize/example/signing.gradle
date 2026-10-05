@@ -1,0 +1,13 @@
+// Applied by build-apk.sh to the generated app: the debug build is signed
+// with the demo's throwaway key (README.md), whose SHA-1 is the one the
+// Android OAuth client of bats-lang/quire#320 is made for.
+android {
+    signingConfigs {
+        debug {
+            storeFile file('../../demo.jks')
+            storePassword 'g5jwKdpyVSP_qUndX1wglzKQ'
+            keyAlias 'demo'
+            keyPassword 'g5jwKdpyVSP_qUndX1wglzKQ'
+        }
+    }
+}

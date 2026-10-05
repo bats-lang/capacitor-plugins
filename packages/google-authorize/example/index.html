@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>google-authorize demo</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 16px;
+      }
+      button {
+        display: block;
+        width: 100%;
+        min-height: 48px;
+        margin: 8px 0;
+        font-size: 16px;
+      }
+      #log {
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>google-authorize demo</h1>
+    <p>Scope: <code>drive.appdata</code>. Built from <code id="commit"></code>.</p>
+    <button id="authorization-for-scopes">authorizationForScopes (never shows anything)</button>
+    <button id="authorize-scopes">authorizeScopes (may show the consent screen)</button>
+    <button id="check-token">Check token (tokeninfo)</button>
+    <button id="account-address">Account address (Drive about.get)</button>
+    <button id="clear-authorization-token">clearAuthorizationToken (the last token)</button>
+    <button id="revoke-access">revokeAccess (the last account)</button>
+    <button id="copy-log">Copy log</button>
+    <button id="clear-log">Clear log</button>
+    <p>Newest first:</p>
+    <pre id="log"></pre>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
