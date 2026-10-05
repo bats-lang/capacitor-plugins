@@ -1,0 +1,7 @@
+// Built on its own (CI's ./gradlew :build :test) against Capacitor's
+// Android library from the workspace's hoisted node_modules. In an app,
+// cap sync includes this project in the app's own build instead.
+rootProject.name = 'capacitor-google-authorize'
+
+include ':capacitor-android'
+project(':capacitor-android').projectDir = new File('../../../node_modules/@capacitor/android/capacitor')
