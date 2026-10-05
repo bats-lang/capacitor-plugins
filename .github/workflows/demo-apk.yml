@@ -1,0 +1,96 @@
+name: demo-apk
+
+# The google-authorize demo app (packages/google-authorize/example), built
+# into an APK signed with the demo's throwaway key, so the owner installs
+# it from GitHub for the device check of bats-lang/quire#321 (Phase 0,
+# step 3). The APK is checked (verify-apk.sh: the demo key's SHA-1, the
+# package of quire#320's OAuth client, GoogleAuthorize registered) and
+# uploaded as the artifact google-authorize-demo-apk (a zip holding the
+# APK, kept 90 days; a phone's Files app extracts it). Pinned as check.yml is: each action by its commit, Node by
+# .nvmrc, pnpm by packageManager, the JDK by its release, Gradle by its
+# distribution's SHA-256 (android-project.sh) and the Android SDK's packages by
+# their versions.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/google-authorize/**'
+      - '.github/workflows/demo-apk.yml'
+  # A pull request that changes the demo builds and checks it too
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/google-authorize/**'
+      - '.github/workflows/demo-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+
+      - name: Install
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build the plugin and the example
+        env:
+          VITE_DEMO_COMMIT: ${{ github.sha }}
+        run: corepack pnpm --recursive --workspace-concurrency=1 run build
+
+      - name: The Android SDK's packages the build and the checks use
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'platforms;android-36' 'build-tools;36.0.0' > /dev/null
+
+      # The steps of build-apk.sh, with the generated project's Gradle
+      # wrapper validated (beside each plugin's own) before it runs
+      - name: Make the Android project
+        run: packages/google-authorize/example/android-project.sh
+
+      - uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          min-wrapper-count: 2
+
+      - name: Build the APK
+        working-directory: packages/google-authorize/example/android
+        run: ./gradlew --no-daemon --stacktrace assembleDebug
+
+      - name: Check the APK
+        working-directory: packages/google-authorize/example
+        run: ./verify-apk.sh android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Name the APK
+        run: |
+          mkdir "$RUNNER_TEMP/apk"
+          cp packages/google-authorize/example/android/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/apk/google-authorize-demo.apk"
+          sha256sum "$RUNNER_TEMP/apk/google-authorize-demo.apk"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: google-authorize-demo-apk
+          path: ${{ runner.temp }}/apk/google-authorize-demo.apk
+          if-no-files-found: error
+          retention-days: 90

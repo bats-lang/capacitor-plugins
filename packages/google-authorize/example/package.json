@@ -1,0 +1,19 @@
+{
+  "name": "@bats-lang/capacitor-google-authorize-example",
+  "private": true,
+  "description": "The google-authorize demo app (bats-lang/quire#321, Phase 0 step 3): a button and a timestamped log line for each step of the device check",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@bats-lang/capacitor-google-authorize": "workspace:*",
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.2",
+    "typescript": "6.0.3",
+    "vite": "8.3.2"
+  }
+}

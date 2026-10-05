@@ -4,3 +4,6 @@ build/
 local.properties
 *.iml
 .idea/
+# The example app: what Vite builds, and the Android project cap add makes
+packages/*/example/dist/
+packages/*/example/android/

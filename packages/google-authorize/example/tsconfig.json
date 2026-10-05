@@ -1,0 +1,10 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["dom", "es2020"],
+    "target": "es2020",
+    "types": ["vite/client"],
+    "noEmit": true
+  },
+  "include": ["src"]
+}

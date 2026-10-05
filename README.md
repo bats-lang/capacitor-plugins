@@ -36,7 +36,9 @@ Each plugin's own README documents its API.
 
 - [google-authorize](packages/google-authorize): Google authorization on
   Android with no sign-in (Play services' `AuthorizationClient`), shaped
-  as Flutter's google_sign_in authorization client.
+  as Flutter's google_sign_in authorization client. Its demo app, to
+  check it on a phone, is in its `example/`; the APK is the artifact
+  of the `demo-apk` workflow's runs.
 
 ## Working here
 

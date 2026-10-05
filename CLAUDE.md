@@ -92,6 +92,16 @@ later read it there, not from `.npmrc`), so `cap sync` finds the plugin
 where Capacitor expects it. A change reaches an app only when bridge
 moves its pin to a newer commit of main.
 
+## A demo app
+
+A plugin may have a demo app in `packages/<name>/example/` (a workspace
+package, so it uses the plugin as the workspace builds it), for checking
+the plugin on a device. `google-authorize`'s (bats-lang/quire#321) is
+built by `.github/workflows/demo-apk.yml` into an APK signed with a
+throwaway, public demo key, checked (the key's SHA-1, the package), and
+kept as the run's artifact `google-authorize-demo-apk` (90 days), the
+owner's download. No app installs from it.
+
 ## CI is pinned
 
 Every input to CI is pinned in the source, so a commit that passes
