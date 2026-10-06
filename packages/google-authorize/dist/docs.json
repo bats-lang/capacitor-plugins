@@ -46,7 +46,7 @@
             "text": "0.1.0"
           }
         ],
-        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out, `CONSENT_SHOWING` while another call's consent screen is\nshowing, the platform's code (`CommonStatusCodes`' name), or `INVALID_OPTIONS`.",
+        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen returns\nnothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code\n(`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen\nwith it), or `INVALID_OPTIONS`.",
         "complexTypes": [
           "GrantedAuthorization",
           "ScopesOptions"

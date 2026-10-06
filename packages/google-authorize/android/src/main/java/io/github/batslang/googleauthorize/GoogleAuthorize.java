@@ -12,7 +12,7 @@ import java.util.List;
  */
 final class GoogleAuthorize<Consent, Returned> {
 
-    /** The reader backed out of the consent screen. */
+    /** The reader backed out of the consent screen, as Play services' CommonStatusCodes names it. */
     static final String CANCELED = "CANCELED";
     /** authorizeScopes was called while another call's consent screen was showing. */
     static final String CONSENT_SHOWING = "CONSENT_SHOWING";
@@ -80,14 +80,20 @@ final class GoogleAuthorize<Consent, Returned> {
         consentScreen.show(consent);
     }
 
-    /** The consent screen's result: completed (RESULT_OK) with what it returned, or not (the reader backed out). */
+    /**
+     * The consent screen's result: whether it completed (RESULT_OK), and the intent it returned, or null. Whatever the
+     * result code, a returned intent is read (getAuthorizationResultFromIntent), so what Google says is the answer: a
+     * grant, its CANCELED when the reader backed out (Play services answers CANCELED for an intent with no status), or
+     * any other status, such as DEVELOPER_ERROR, which also ends the screen with RESULT_CANCELED. With no intent and no
+     * RESULT_OK there is nothing to read, and the reader backed out.
+     */
     void consentEnded(boolean completed, Returned returned) {
         Answer answer = waiting;
         waiting = null;
         if (answer == null) {
             return;
         }
-        if (!completed) {
+        if (!completed && returned == null) {
             answer.failed(new Failure(CANCELED, "The reader backed out of the consent screen"));
             return;
         }

@@ -18,8 +18,10 @@ export interface GoogleAuthorizePlugin {
      * The access token for the scopes, showing Google's consent screen when the reader must consent first
      * (`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).
      *
-     * Rejects with `CANCELED` when the reader backs out, `CONSENT_SHOWING` while another call's consent screen is
-     * showing, the platform's code (`CommonStatusCodes`' name), or `INVALID_OPTIONS`.
+     * Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen returns
+     * nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code
+     * (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen
+     * with it), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */

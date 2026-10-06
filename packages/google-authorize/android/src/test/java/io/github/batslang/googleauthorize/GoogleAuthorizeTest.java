@@ -157,15 +157,72 @@ public class GoogleAuthorizeTest {
         assertSame(GRANTED, answer.authorization);
     }
 
-    @Test
-    public void authorizeScopesIsCanceledWhenTheReaderBacksOut() {
+    /** An authorizeScopes call whose consent screen is showing. */
+    private RecordedAnswer consentShowing() {
         RecordedAnswer answer = new RecordedAnswer();
         authorize.authorizeScopes(SCOPES, answer);
         service.authorizeReplies.get(0).succeeded(new Authorizing.ConsentNeeded<>("consent"));
+        return answer;
+    }
+
+    @Test
+    public void authorizeScopesIsCanceledWhenTheConsentEndsWithNothingReturned() {
+        RecordedAnswer answer = consentShowing();
         authorize.consentEnded(false, null);
         assertEquals("failed", answer.only());
         assertEquals(GoogleAuthorize.CANCELED, answer.failure.code);
-        assertTrue("the result is not read", service.consentsReturned.isEmpty());
+        assertTrue("there is no result to read", service.consentsReturned.isEmpty());
+    }
+
+    @Test
+    public void aConsentEndedWithoutOkIsReadAndCanceledWhenGoogleSaysSo() {
+        RecordedAnswer answer = consentShowing();
+        authorize.consentEnded(false, "returned");
+        assertEquals("the returned intent is read", List.of("returned"), service.consentsReturned);
+        assertTrue("no answer before Google's", answer.kinds.isEmpty());
+        service.consentReplies.get(0).failed(new Failure("CANCELED", "16: "));
+        assertEquals("failed", answer.only());
+        assertEquals(GoogleAuthorize.CANCELED, answer.failure.code);
+    }
+
+    /** A consent ended without RESULT_OK whose intent Google answers with this status: that status is the answer. */
+    private void consentEndedWithStatus(String code, String message) {
+        RecordedAnswer answer = consentShowing();
+        authorize.consentEnded(false, "returned");
+        assertEquals(List.of("returned"), service.consentsReturned);
+        service.consentReplies.get(0).failed(new Failure(code, message));
+        assertEquals("failed", answer.only());
+        assertEquals(code, answer.failure.code);
+        assertEquals(message, answer.failure.message);
+    }
+
+    @Test
+    public void aConsentEndedWithoutOkGivesGooglesDeveloperError() {
+        consentEndedWithStatus("DEVELOPER_ERROR", "10: ");
+    }
+
+    @Test
+    public void aConsentEndedWithoutOkGivesGooglesSignInRequired() {
+        consentEndedWithStatus("SIGN_IN_REQUIRED", "4: ");
+    }
+
+    @Test
+    public void aConsentEndedWithoutOkGivesGooglesNetworkError() {
+        consentEndedWithStatus("NETWORK_ERROR", "7: ");
+    }
+
+    @Test
+    public void aConsentEndedWithoutOkGivesGooglesInternalError() {
+        consentEndedWithStatus("INTERNAL_ERROR", "8: ");
+    }
+
+    @Test
+    public void aConsentEndedWithoutOkThatGoogleGrantsGivesTheGrant() {
+        RecordedAnswer answer = consentShowing();
+        authorize.consentEnded(false, "returned");
+        service.consentReplies.get(0).succeeded(GRANTED);
+        assertEquals("authorized", answer.only());
+        assertSame(GRANTED, answer.authorization);
     }
 
     @Test

@@ -25,6 +25,15 @@ public class PlayAuthorizationServiceTest {
     }
 
     @Test
+    public void aDeveloperErrorIsNamedWithItsMessage() {
+        Failure failure = PlayAuthorizationService.failureOf(
+            new ApiException(new Status(CommonStatusCodes.DEVELOPER_ERROR, "no client for this app"))
+        );
+        assertEquals("DEVELOPER_ERROR", failure.code);
+        assertEquals("10: no client for this app", failure.message);
+    }
+
+    @Test
     public void anyOtherExceptionIsNamedByItsClass() {
         Failure failure = PlayAuthorizationService.failureOf(new IllegalArgumentException("no scopes"));
         assertEquals("IllegalArgumentException", failure.code);
