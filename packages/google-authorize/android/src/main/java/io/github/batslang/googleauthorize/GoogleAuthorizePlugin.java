@@ -24,7 +24,7 @@ import org.json.JSONArray;
 public class GoogleAuthorizePlugin extends Plugin {
 
     /** An option is missing or is not what the method takes. */
-    static final String INVALID_OPTIONS = "INVALID_OPTIONS";
+    static final String INVALID_OPTIONS = GoogleAuthorize.INVALID_OPTIONS;
 
     private GoogleAuthorize<PendingIntent, Intent> authorize;
 
@@ -40,10 +40,10 @@ public class GoogleAuthorizePlugin extends Plugin {
         );
     }
 
-    /** The call's scopes: a non-empty array of strings, else null. */
+    /** The call's scopes: an array of strings, else null (GoogleAuthorize checks that there is one, none blank). */
     private static List<String> scopesOf(PluginCall call) {
         JSArray given = call.getArray("scopes");
-        if (given == null || given.length() == 0) {
+        if (given == null) {
             return null;
         }
         List<String> scopes = new ArrayList<>();
@@ -93,7 +93,7 @@ public class GoogleAuthorizePlugin extends Plugin {
     public void authorizationForScopes(PluginCall call) {
         List<String> scopes = scopesOf(call);
         if (scopes == null) {
-            call.reject("scopes must be a non-empty array of strings", INVALID_OPTIONS);
+            call.reject(GoogleAuthorize.INVALID_SCOPES, INVALID_OPTIONS);
             return;
         }
         authorize.authorizationForScopes(scopes, answerOf(call));
@@ -103,7 +103,7 @@ public class GoogleAuthorizePlugin extends Plugin {
     public void authorizeScopes(PluginCall call) {
         List<String> scopes = scopesOf(call);
         if (scopes == null) {
-            call.reject("scopes must be a non-empty array of strings", INVALID_OPTIONS);
+            call.reject(GoogleAuthorize.INVALID_SCOPES, INVALID_OPTIONS);
             return;
         }
         authorize.authorizeScopes(scopes, answerOf(call));
@@ -124,7 +124,7 @@ public class GoogleAuthorizePlugin extends Plugin {
         String account = call.getString("account");
         List<String> scopes = scopesOf(call);
         if (account == null || account.isEmpty() || scopes == null) {
-            call.reject("account must be a non-empty string, and scopes a non-empty array of strings", INVALID_OPTIONS);
+            call.reject("account must be a non-empty string, and " + GoogleAuthorize.INVALID_SCOPES, INVALID_OPTIONS);
             return;
         }
         authorize.revokeAccess(account, scopes, answerOf(call));

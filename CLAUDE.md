@@ -46,7 +46,14 @@ answered as the reader backing out, so the app said nothing useful.)
   of its own: a cancel is answered only when the platform says the
   reader canceled, and a platform error with the platform's code and
   message. One outcome is never folded into another ("anything not OK
-  is CANCELED").
+  is CANCELED"). An activity that ends with RESULT_CANCELED and no
+  intent counts as the platform's cancel: it is Android's convention
+  for the reader backing out (the back gesture, or the activity
+  finishing without a result), and there is nothing else to read.
+- Options a method does not take (no scopes, a blank scope) are the
+  plugin's `INVALID_OPTIONS`, checked before the platform is called, so
+  the platform's own failure to build a request is never what answers
+  them.
 - What the plugin does not recognise (an exception the platform does
   not document, a status code it does not name, an answer missing what
   it must hold) is answered as `UNEXPECTED`, with a message that says

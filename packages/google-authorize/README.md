@@ -167,9 +167,9 @@ Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALI
 
 #### ScopesOptions
 
-| Prop         | Type                  | Description                                                                              | Since |
-| ------------ | --------------------- | ---------------------------------------------------------------------------------------- | ----- |
-| **`scopes`** | <code>string[]</code> | The OAuth scopes, at least one, such as `https://www.googleapis.com/auth/drive.appdata`. | 0.1.0 |
+| Prop         | Type                  | Description                                                                                                                                                  | Since |
+| ------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| **`scopes`** | <code>string[]</code> | The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as `https://www.googleapis.com/auth/drive.appdata`. | 0.1.0 |
 
 
 #### GrantedAuthorization
@@ -188,9 +188,9 @@ Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALI
 
 #### RevokeOptions
 
-| Prop          | Type                  | Description                                                                 | Since |
-| ------------- | --------------------- | --------------------------------------------------------------------------- | ----- |
-| **`account`** | <code>string</code>   | The Google account whose grant is taken back: an authorization's `account`. | 0.1.0 |
-| **`scopes`**  | <code>string[]</code> | The scopes to take back, at least one.                                      | 0.1.0 |
+| Prop          | Type                  | Description                                                                                                | Since |
+| ------------- | --------------------- | ---------------------------------------------------------------------------------------------------------- | ----- |
+| **`account`** | <code>string</code>   | The Google account whose grant is taken back: an authorization's `account`.                                | 0.1.0 |
+| **`scopes`**  | <code>string[]</code> | The scopes to take back, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`). | 0.1.0 |
 
 </docgen-api>

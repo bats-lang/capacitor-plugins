@@ -186,7 +186,7 @@
               "name": "since"
             }
           ],
-          "docs": "The OAuth scopes, at least one, such as `https://www.googleapis.com/auth/drive.appdata`.",
+          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.",
           "complexTypes": [],
           "type": "string[]"
         }
@@ -263,7 +263,7 @@
               "name": "since"
             }
           ],
-          "docs": "The scopes to take back, at least one.",
+          "docs": "The scopes to take back, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`).",
           "complexTypes": [],
           "type": "string[]"
         }

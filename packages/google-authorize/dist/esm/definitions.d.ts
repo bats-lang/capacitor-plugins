@@ -48,7 +48,8 @@ export interface GoogleAuthorizePlugin {
 }
 export interface ScopesOptions {
     /**
-     * The OAuth scopes, at least one, such as `https://www.googleapis.com/auth/drive.appdata`.
+     * The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as
+     * `https://www.googleapis.com/auth/drive.appdata`.
      *
      * @since 0.1.0
      */
@@ -108,7 +109,7 @@ export interface RevokeOptions {
      */
     account: string;
     /**
-     * The scopes to take back, at least one.
+     * The scopes to take back, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`).
      *
      * @since 0.1.0
      */

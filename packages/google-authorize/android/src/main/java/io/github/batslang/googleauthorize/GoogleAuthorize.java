@@ -22,6 +22,10 @@ final class GoogleAuthorize<Consent, Returned> {
      * what it was.
      */
     static final String UNEXPECTED = "UNEXPECTED";
+    /** An option is missing or is not what the method takes. */
+    static final String INVALID_OPTIONS = "INVALID_OPTIONS";
+    /** What INVALID_OPTIONS says of scopes. */
+    static final String INVALID_SCOPES = "scopes must be a non-empty array of non-blank strings";
 
     private final AuthorizationService<Consent, Returned> service;
     private final ConsentScreen<Consent> consentScreen;
@@ -33,8 +37,28 @@ final class GoogleAuthorize<Consent, Returned> {
         this.consentScreen = consentScreen;
     }
 
+    /**
+     * Whether scopes are what the methods take: at least one, each a non-blank string. A blank one would make Play
+     * services' Scope throw, which is not the platform's answer to a request but the plugin's to its options.
+     */
+    static boolean scopesValid(List<String> scopes) {
+        if (scopes == null || scopes.isEmpty()) {
+            return false;
+        }
+        for (String scope : scopes) {
+            if (scope == null || scope.isBlank()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** The token when the scopes are granted, else no authorization; never shows anything. */
     void authorizationForScopes(List<String> scopes, Answer answer) {
+        if (!scopesValid(scopes)) {
+            answer.failed(new Failure(INVALID_OPTIONS, INVALID_SCOPES));
+            return;
+        }
         service.authorize(
             scopes,
             new Reply<>() {
@@ -57,6 +81,10 @@ final class GoogleAuthorize<Consent, Returned> {
 
     /** The token when the scopes are granted, else after the reader consents on Google's screen. */
     void authorizeScopes(List<String> scopes, Answer answer) {
+        if (!scopesValid(scopes)) {
+            answer.failed(new Failure(INVALID_OPTIONS, INVALID_SCOPES));
+            return;
+        }
         service.authorize(
             scopes,
             new Reply<>() {
@@ -133,6 +161,10 @@ final class GoogleAuthorize<Consent, Returned> {
     }
 
     void revokeAccess(String account, List<String> scopes, Answer answer) {
+        if (!scopesValid(scopes)) {
+            answer.failed(new Failure(INVALID_OPTIONS, INVALID_SCOPES));
+            return;
+        }
         service.revokeAccess(account, scopes, doneOrFailed(answer));
     }
 

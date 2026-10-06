@@ -359,4 +359,62 @@ public class GoogleAuthorizeTest {
         assertEquals("failed", answer.only());
         assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
     }
+
+    @Test
+    public void aConsentCompletedWithNothingReturnedAnswersWhatGoogleSays() {
+        RecordedAnswer answer = consentShowing();
+        authorize.consentEnded(true, null);
+        assertEquals(
+            "the missing intent is still read",
+            java.util.Collections.singletonList(null),
+            service.consentsReturned
+        );
+        service.consentReplies.get(0).failed(new Failure("INTERNAL_ERROR", "8: "));
+        assertEquals("failed", answer.only());
+        assertEquals("INTERNAL_ERROR", answer.failure.code);
+    }
+
+    /** Scopes no method takes: none, an empty string, a blank one, a null one. */
+    private static final List<List<String>> INVALID_SCOPE_LISTS = List.of(
+        List.of(),
+        List.of(""),
+        List.of("   "),
+        java.util.Arrays.asList("https://www.googleapis.com/auth/drive.appdata", null)
+    );
+
+    private static void assertInvalid(RecordedAnswer answer) {
+        assertEquals("failed", answer.only());
+        assertEquals(GoogleAuthorize.INVALID_OPTIONS, answer.failure.code);
+    }
+
+    @Test
+    public void authorizationForScopesRefusesScopesItDoesNotTake() {
+        for (List<String> scopes : INVALID_SCOPE_LISTS) {
+            RecordedAnswer answer = new RecordedAnswer();
+            authorize.authorizationForScopes(scopes, answer);
+            assertInvalid(answer);
+        }
+        assertTrue("Google is asked nothing", service.authorized.isEmpty());
+    }
+
+    @Test
+    public void authorizeScopesRefusesScopesItDoesNotTake() {
+        for (List<String> scopes : INVALID_SCOPE_LISTS) {
+            RecordedAnswer answer = new RecordedAnswer();
+            authorize.authorizeScopes(scopes, answer);
+            assertInvalid(answer);
+        }
+        assertTrue("Google is asked nothing", service.authorized.isEmpty());
+        assertTrue(consentsShown.isEmpty());
+    }
+
+    @Test
+    public void revokeAccessRefusesScopesItDoesNotTake() {
+        for (List<String> scopes : INVALID_SCOPE_LISTS) {
+            RecordedAnswer answer = new RecordedAnswer();
+            authorize.revokeAccess("reader@example.com", scopes, answer);
+            assertInvalid(answer);
+        }
+        assertTrue("Google is asked nothing", service.accountsRevoked.isEmpty());
+    }
 }
