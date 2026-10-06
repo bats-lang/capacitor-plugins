@@ -330,4 +330,33 @@ public class GoogleAuthorizeTest {
         assertEquals("authorized", answer.only());
         assertNull(answer.authorization.account);
     }
+
+    private static final Authorization NO_TOKEN = new Authorization(null, SCOPES, "reader@example.com");
+
+    @Test
+    public void authorizationForScopesWithAGrantWithNoTokenIsUnexpected() {
+        RecordedAnswer answer = new RecordedAnswer();
+        authorize.authorizationForScopes(SCOPES, answer);
+        service.authorizeReplies.get(0).succeeded(new Authorizing.Granted<>(NO_TOKEN));
+        assertEquals("failed", answer.only());
+        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+    }
+
+    @Test
+    public void authorizeScopesWithAGrantWithNoTokenIsUnexpected() {
+        RecordedAnswer answer = new RecordedAnswer();
+        authorize.authorizeScopes(SCOPES, answer);
+        service.authorizeReplies.get(0).succeeded(new Authorizing.Granted<>(new Authorization("", SCOPES, null)));
+        assertEquals("failed", answer.only());
+        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+    }
+
+    @Test
+    public void aConsentWhoseGrantHasNoTokenIsUnexpected() {
+        RecordedAnswer answer = consentShowing();
+        authorize.consentEnded(true, "returned");
+        service.consentReplies.get(0).succeeded(NO_TOKEN);
+        assertEquals("failed", answer.only());
+        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+    }
 }

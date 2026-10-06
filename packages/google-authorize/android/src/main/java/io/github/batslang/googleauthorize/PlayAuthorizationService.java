@@ -41,13 +41,30 @@ final class PlayAuthorizationService implements AuthorizationService<PendingInte
         return scopes;
     }
 
-    /** A failure's code: an ApiException's status as Play services names it, else the exception's class. */
+    /** What CommonStatusCodes.getStatusCodeString answers for a status code it does not name. */
+    private static final String UNNAMED_STATUS = "unknown status code";
+
+    /**
+     * A failure: an ApiException's status as CommonStatusCodes names it, with the exception's message. Anything else
+     * (another exception, or a status code CommonStatusCodes does not name) is UNEXPECTED, its message saying what it
+     * was, never folded into a known code.
+     */
     static Failure failureOf(Exception exception) {
-        String code =
-            exception instanceof ApiException apiException
-                ? CommonStatusCodes.getStatusCodeString(apiException.getStatusCode())
-                : exception.getClass().getSimpleName();
-        return new Failure(code, String.valueOf(exception.getMessage()));
+        if (exception instanceof ApiException apiException) {
+            int status = apiException.getStatusCode();
+            String code = CommonStatusCodes.getStatusCodeString(status);
+            if (!code.startsWith(UNNAMED_STATUS)) {
+                return new Failure(code, String.valueOf(exception.getMessage()));
+            }
+            return new Failure(
+                GoogleAuthorize.UNEXPECTED,
+                "Status code " + status + ": " + String.valueOf(exception.getMessage())
+            );
+        }
+        return new Failure(
+            GoogleAuthorize.UNEXPECTED,
+            exception.getClass().getSimpleName() + ": " + String.valueOf(exception.getMessage())
+        );
     }
 
     // toGoogleSignInAccount is deprecated with GoogleSignIn, but it is the one way an AuthorizationResult names its

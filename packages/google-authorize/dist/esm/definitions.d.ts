@@ -9,7 +9,8 @@ export interface GoogleAuthorizePlugin {
      * (`AuthorizationClient.authorize`, with no resolution). When the reader must consent first, nothing is shown and
      * the answer's `authorization` is `null`.
      *
-     * Rejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`), or `INVALID_OPTIONS`.
+     * Rejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`), `UNEXPECTED` (an answer
+     * the platform documents no meaning for, said in the message), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -21,7 +22,8 @@ export interface GoogleAuthorizePlugin {
      * Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen returns
      * nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code
      * (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen
-     * with it), or `INVALID_OPTIONS`.
+     * with it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token or a
+     * status code `CommonStatusCodes` does not name, said in the message), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -30,7 +32,7 @@ export interface GoogleAuthorizePlugin {
      * Removes the access token from Play services' cache (`AuthorizationClient.clearToken`), so that the next
      * authorization gets a new one: for a token that Google refused.
      *
-     * Rejects with the platform's code, or `INVALID_OPTIONS`.
+     * Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -38,7 +40,7 @@ export interface GoogleAuthorizePlugin {
     /**
      * Takes back the account's grant of the scopes (`AuthorizationClient.revokeAccess`).
      *
-     * Rejects with the platform's code, or `INVALID_OPTIONS`.
+     * Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */

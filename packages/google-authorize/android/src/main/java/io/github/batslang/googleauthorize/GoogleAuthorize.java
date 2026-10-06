@@ -16,6 +16,12 @@ final class GoogleAuthorize<Consent, Returned> {
     static final String CANCELED = "CANCELED";
     /** authorizeScopes was called while another call's consent screen was showing. */
     static final String CONSENT_SHOWING = "CONSENT_SHOWING";
+    /**
+     * An answer the platform documents no meaning for (an exception that is not an ApiException, a status code
+     * CommonStatusCodes does not name, a grant with no access token): never folded into a known code. Its message says
+     * what it was.
+     */
+    static final String UNEXPECTED = "UNEXPECTED";
 
     private final AuthorizationService<Consent, Returned> service;
     private final ConsentScreen<Consent> consentScreen;
@@ -35,7 +41,7 @@ final class GoogleAuthorize<Consent, Returned> {
                 @Override
                 public void succeeded(Authorizing<Consent> authorizing) {
                     if (authorizing instanceof Authorizing.Granted<Consent> granted) {
-                        answer.authorized(granted.authorization);
+                        grantedOrUnexpected(granted.authorization, answer);
                     } else {
                         answer.notAuthorized();
                     }
@@ -57,7 +63,7 @@ final class GoogleAuthorize<Consent, Returned> {
                 @Override
                 public void succeeded(Authorizing<Consent> authorizing) {
                     if (authorizing instanceof Authorizing.Granted<Consent> granted) {
-                        answer.authorized(granted.authorization);
+                        grantedOrUnexpected(granted.authorization, answer);
                     } else {
                         showConsent(((Authorizing.ConsentNeeded<Consent>) authorizing).consent, answer);
                     }
@@ -69,6 +75,15 @@ final class GoogleAuthorize<Consent, Returned> {
                 }
             }
         );
+    }
+
+    /** A grant answers with its token; one with no token (AuthorizationResult.getAccessToken is null) is unexpected. */
+    private static void grantedOrUnexpected(Authorization authorization, Answer answer) {
+        if (authorization.accessToken == null || authorization.accessToken.isEmpty()) {
+            answer.failed(new Failure(UNEXPECTED, "The authorization result has no access token"));
+            return;
+        }
+        answer.authorized(authorization);
     }
 
     private void showConsent(Consent consent, Answer answer) {
@@ -102,7 +117,7 @@ final class GoogleAuthorize<Consent, Returned> {
             new Reply<>() {
                 @Override
                 public void succeeded(Authorization authorization) {
-                    answer.authorized(authorization);
+                    grantedOrUnexpected(authorization, answer);
                 }
 
                 @Override
