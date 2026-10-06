@@ -331,33 +331,51 @@ public class GoogleAuthorizeTest {
         assertNull(answer.authorization.account);
     }
 
-    private static final Authorization NO_TOKEN = new Authorization(null, SCOPES, "reader@example.com");
+    /** Grants missing what a grant must hold: no token (null, empty, blank), no scope or a blank one, a blank account. */
+    private static final List<Authorization> NO_TOKENS = java.util.Arrays.asList(
+        new Authorization(null, SCOPES, "reader@example.com"),
+        new Authorization("", SCOPES, null),
+        new Authorization("   ", SCOPES, "reader@example.com"),
+        // a grant of no scope, of a blank one, and one naming a blank account: as unexpected
+        new Authorization("token-3", List.of(), "reader@example.com"),
+        new Authorization("token-3", List.of(" "), "reader@example.com"),
+        new Authorization("token-3", SCOPES, "  ")
+    );
 
     @Test
     public void authorizationForScopesWithAGrantWithNoTokenIsUnexpected() {
-        RecordedAnswer answer = new RecordedAnswer();
-        authorize.authorizationForScopes(SCOPES, answer);
-        service.authorizeReplies.get(0).succeeded(new Authorizing.Granted<>(NO_TOKEN));
-        assertEquals("failed", answer.only());
-        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        for (Authorization grant : NO_TOKENS) {
+            setUp();
+            RecordedAnswer answer = new RecordedAnswer();
+            authorize.authorizationForScopes(SCOPES, answer);
+            service.authorizeReplies.get(0).succeeded(new Authorizing.Granted<>(grant));
+            assertEquals("failed", answer.only());
+            assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        }
     }
 
     @Test
     public void authorizeScopesWithAGrantWithNoTokenIsUnexpected() {
-        RecordedAnswer answer = new RecordedAnswer();
-        authorize.authorizeScopes(SCOPES, answer);
-        service.authorizeReplies.get(0).succeeded(new Authorizing.Granted<>(new Authorization("", SCOPES, null)));
-        assertEquals("failed", answer.only());
-        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        for (Authorization grant : NO_TOKENS) {
+            setUp();
+            RecordedAnswer answer = new RecordedAnswer();
+            authorize.authorizeScopes(SCOPES, answer);
+            service.authorizeReplies.get(0).succeeded(new Authorizing.Granted<>(grant));
+            assertEquals("failed", answer.only());
+            assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        }
     }
 
     @Test
     public void aConsentWhoseGrantHasNoTokenIsUnexpected() {
-        RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned");
-        service.consentReplies.get(0).succeeded(NO_TOKEN);
-        assertEquals("failed", answer.only());
-        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        for (Authorization grant : NO_TOKENS) {
+            setUp();
+            RecordedAnswer answer = consentShowing();
+            authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned");
+            service.consentReplies.get(0).succeeded(grant);
+            assertEquals("failed", answer.only());
+            assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        }
     }
 
     @Test

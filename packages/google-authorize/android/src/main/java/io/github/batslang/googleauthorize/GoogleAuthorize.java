@@ -126,10 +126,22 @@ final class GoogleAuthorize<Consent, Returned> {
         );
     }
 
-    /** A grant answers with its token; one with no token (AuthorizationResult.getAccessToken is null) is unexpected. */
+    /**
+     * A grant answers with its token, the scopes granted and its account (or null when it names none). One missing what
+     * a grant must hold is unexpected: no token (null, empty or blank), no scope granted or a blank one, or an account
+     * that is named but blank.
+     */
     private static void grantedOrUnexpected(Authorization authorization, Answer answer) {
-        if (authorization.accessToken == null || authorization.accessToken.isEmpty()) {
+        if (!nonBlank(authorization.accessToken)) {
             answer.failed(new Failure(UNEXPECTED, "The authorization result has no access token"));
+            return;
+        }
+        if (!scopesValid(authorization.grantedScopes)) {
+            answer.failed(new Failure(UNEXPECTED, "The authorization result grants no scope, or a blank one"));
+            return;
+        }
+        if (authorization.account != null && authorization.account.isBlank()) {
+            answer.failed(new Failure(UNEXPECTED, "The authorization result names a blank account"));
             return;
         }
         answer.authorized(authorization);
