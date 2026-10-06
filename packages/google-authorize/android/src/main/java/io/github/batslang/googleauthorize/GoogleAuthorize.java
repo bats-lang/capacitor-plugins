@@ -37,9 +37,16 @@ final class GoogleAuthorize<Consent, Returned> {
         this.consentScreen = consentScreen;
     }
 
+    /** What INVALID_OPTIONS says of an access token. */
+    static final String INVALID_TOKEN = "accessToken must be a non-blank string";
+    /** What INVALID_OPTIONS says of an account. */
+    static final String INVALID_ACCOUNT = "account must be a non-blank string";
+
     /**
-     * Whether scopes are what the methods take: at least one, each a non-blank string. A blank one would make Play
-     * services' Scope throw, which is not the platform's answer to a request but the plugin's to its options.
+     * Whether scopes are what the methods take: a list (null when the call gave no array of strings) of at least one
+     * scope, each a non-blank string. An empty scope would make Play services' Scope throw; a blank one is no scope
+     * (an OAuth scope has no space in it), though Play services would send it on. Either is the plugin's answer to its
+     * options, not the platform's to a request.
      */
     static boolean scopesValid(List<String> scopes) {
         if (scopes == null || scopes.isEmpty()) {
@@ -127,8 +134,9 @@ final class GoogleAuthorize<Consent, Returned> {
      * The consent screen's result: whether it completed (RESULT_OK), and the intent it returned, or null. Whatever the
      * result code, a returned intent is read (getAuthorizationResultFromIntent), so what Google says is the answer: a
      * grant, its CANCELED when the reader backed out (Play services answers CANCELED for an intent with no status), or
-     * any other status, such as DEVELOPER_ERROR, which also ends the screen with RESULT_CANCELED. With no intent and no
-     * RESULT_OK there is nothing to read, and the reader backed out.
+     * any other status, such as DEVELOPER_ERROR, which also ends the screen with RESULT_CANCELED. With no intent there is
+     * nothing to read: without RESULT_OK the reader backed out (Android's convention), and with it the answer is
+     * UNEXPECTED.
      */
     void consentEnded(boolean completed, Returned returned) {
         Answer answer = waiting;
@@ -136,8 +144,13 @@ final class GoogleAuthorize<Consent, Returned> {
         if (answer == null) {
             return;
         }
-        if (!completed && returned == null) {
-            answer.failed(new Failure(CANCELED, "The reader backed out of the consent screen"));
+        if (returned == null) {
+            if (completed) {
+                // RESULT_OK with nothing to read: no answer Play services documents
+                answer.failed(new Failure(UNEXPECTED, "The consent screen completed but returned nothing"));
+            } else {
+                answer.failed(new Failure(CANCELED, "The reader backed out of the consent screen"));
+            }
             return;
         }
         service.authorizationFromConsent(
@@ -156,11 +169,24 @@ final class GoogleAuthorize<Consent, Returned> {
         );
     }
 
+    /** Whether text is a non-blank string (null when the call gave none). */
+    static boolean nonBlank(String text) {
+        return text != null && !text.isBlank();
+    }
+
     void clearAuthorizationToken(String accessToken, Answer answer) {
+        if (!nonBlank(accessToken)) {
+            answer.failed(new Failure(INVALID_OPTIONS, INVALID_TOKEN));
+            return;
+        }
         service.clearToken(accessToken, doneOrFailed(answer));
     }
 
     void revokeAccess(String account, List<String> scopes, Answer answer) {
+        if (!nonBlank(account)) {
+            answer.failed(new Failure(INVALID_OPTIONS, INVALID_ACCOUNT));
+            return;
+        }
         if (!scopesValid(scopes)) {
             answer.failed(new Failure(INVALID_OPTIONS, INVALID_SCOPES));
             return;

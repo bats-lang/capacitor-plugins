@@ -23,9 +23,6 @@ import org.json.JSONArray;
 @CapacitorPlugin(name = "GoogleAuthorize")
 public class GoogleAuthorizePlugin extends Plugin {
 
-    /** An option is missing or is not what the method takes. */
-    static final String INVALID_OPTIONS = GoogleAuthorize.INVALID_OPTIONS;
-
     private GoogleAuthorize<PendingIntent, Intent> authorize;
 
     @Override
@@ -40,7 +37,7 @@ public class GoogleAuthorizePlugin extends Plugin {
         );
     }
 
-    /** The call's scopes: an array of strings, else null (GoogleAuthorize checks that there is one, none blank). */
+    /** The call's scopes: an array of strings, else null (no array, or an item that is not a string). */
     private static List<String> scopesOf(PluginCall call) {
         JSArray given = call.getArray("scopes");
         if (given == null) {
@@ -89,44 +86,25 @@ public class GoogleAuthorizePlugin extends Plugin {
         };
     }
 
+    // Each method only reads its options; GoogleAuthorize checks them (INVALID_OPTIONS) before Play services is called
+
     @PluginMethod
     public void authorizationForScopes(PluginCall call) {
-        List<String> scopes = scopesOf(call);
-        if (scopes == null) {
-            call.reject(GoogleAuthorize.INVALID_SCOPES, INVALID_OPTIONS);
-            return;
-        }
-        authorize.authorizationForScopes(scopes, answerOf(call));
+        authorize.authorizationForScopes(scopesOf(call), answerOf(call));
     }
 
     @PluginMethod
     public void authorizeScopes(PluginCall call) {
-        List<String> scopes = scopesOf(call);
-        if (scopes == null) {
-            call.reject(GoogleAuthorize.INVALID_SCOPES, INVALID_OPTIONS);
-            return;
-        }
-        authorize.authorizeScopes(scopes, answerOf(call));
+        authorize.authorizeScopes(scopesOf(call), answerOf(call));
     }
 
     @PluginMethod
     public void clearAuthorizationToken(PluginCall call) {
-        String accessToken = call.getString("accessToken");
-        if (accessToken == null || accessToken.isEmpty()) {
-            call.reject("accessToken must be a non-empty string", INVALID_OPTIONS);
-            return;
-        }
-        authorize.clearAuthorizationToken(accessToken, answerOf(call));
+        authorize.clearAuthorizationToken(call.getString("accessToken"), answerOf(call));
     }
 
     @PluginMethod
     public void revokeAccess(PluginCall call) {
-        String account = call.getString("account");
-        List<String> scopes = scopesOf(call);
-        if (account == null || account.isEmpty() || scopes == null) {
-            call.reject("account must be a non-empty string, and " + GoogleAuthorize.INVALID_SCOPES, INVALID_OPTIONS);
-            return;
-        }
-        authorize.revokeAccess(account, scopes, answerOf(call));
+        authorize.revokeAccess(call.getString("account"), scopesOf(call), answerOf(call));
     }
 }

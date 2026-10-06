@@ -361,21 +361,17 @@ public class GoogleAuthorizeTest {
     }
 
     @Test
-    public void aConsentCompletedWithNothingReturnedAnswersWhatGoogleSays() {
+    public void aConsentCompletedWithNothingReturnedIsUnexpected() {
         RecordedAnswer answer = consentShowing();
         authorize.consentEnded(true, null);
-        assertEquals(
-            "the missing intent is still read",
-            java.util.Collections.singletonList(null),
-            service.consentsReturned
-        );
-        service.consentReplies.get(0).failed(new Failure("INTERNAL_ERROR", "8: "));
         assertEquals("failed", answer.only());
-        assertEquals("INTERNAL_ERROR", answer.failure.code);
+        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        assertTrue("there is nothing to read", service.consentsReturned.isEmpty());
     }
 
-    /** Scopes no method takes: none, an empty string, a blank one, a null one. */
-    private static final List<List<String>> INVALID_SCOPE_LISTS = List.of(
+    /** Scopes no method takes: no list (the call gave no array of strings), none, an empty one, a blank one, a null one. */
+    private static final List<List<String>> INVALID_SCOPE_LISTS = java.util.Arrays.asList(
+        null,
         List.of(),
         List.of(""),
         List.of("   "),
@@ -413,6 +409,29 @@ public class GoogleAuthorizeTest {
         for (List<String> scopes : INVALID_SCOPE_LISTS) {
             RecordedAnswer answer = new RecordedAnswer();
             authorize.revokeAccess("reader@example.com", scopes, answer);
+            assertInvalid(answer);
+        }
+        assertTrue("Google is asked nothing", service.accountsRevoked.isEmpty());
+    }
+
+    /** Strings no method takes: none (the call gave no string), empty, blank. */
+    private static final List<String> INVALID_TEXTS = java.util.Arrays.asList(null, "", "   ");
+
+    @Test
+    public void clearAuthorizationTokenRefusesATokenItDoesNotTake() {
+        for (String accessToken : INVALID_TEXTS) {
+            RecordedAnswer answer = new RecordedAnswer();
+            authorize.clearAuthorizationToken(accessToken, answer);
+            assertInvalid(answer);
+        }
+        assertTrue("Google is asked nothing", service.tokensCleared.isEmpty());
+    }
+
+    @Test
+    public void revokeAccessRefusesAnAccountItDoesNotTake() {
+        for (String account : INVALID_TEXTS) {
+            RecordedAnswer answer = new RecordedAnswer();
+            authorize.revokeAccess(account, SCOPES, answer);
             assertInvalid(answer);
         }
         assertTrue("Google is asked nothing", service.accountsRevoked.isEmpty());

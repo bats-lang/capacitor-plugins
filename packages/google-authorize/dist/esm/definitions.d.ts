@@ -19,11 +19,12 @@ export interface GoogleAuthorizePlugin {
      * The access token for the scopes, showing Google's consent screen when the reader must consent first
      * (`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).
      *
-     * Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen returns
-     * nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code
+     * Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends without
+     * completing and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code
      * (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen
-     * with it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token or a
-     * status code `CommonStatusCodes` does not name, said in the message), or `INVALID_OPTIONS`.
+     * with it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token, a
+     * consent screen that completes and returns nothing, or a status code `CommonStatusCodes` does not name, said in the
+     * message), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -95,7 +96,7 @@ export interface GrantedAuthorization {
 }
 export interface ClearOptions {
     /**
-     * The access token to remove.
+     * The access token to remove, not empty or blank (else the call rejects with `INVALID_OPTIONS`).
      *
      * @since 0.1.0
      */
@@ -103,7 +104,8 @@ export interface ClearOptions {
 }
 export interface RevokeOptions {
     /**
-     * The Google account whose grant is taken back: an authorization's `account`.
+     * The Google account whose grant is taken back: an authorization's `account`, not empty or blank (else the call
+     * rejects with `INVALID_OPTIONS`).
      *
      * @since 0.1.0
      */

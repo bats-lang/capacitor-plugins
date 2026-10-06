@@ -46,7 +46,7 @@
             "text": "0.1.0"
           }
         ],
-        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen returns\nnothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code\n(`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen\nwith it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token or a\nstatus code `CommonStatusCodes` does not name, said in the message), or `INVALID_OPTIONS`.",
+        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends without\ncompleting and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code\n(`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen\nwith it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token, a\nconsent screen that completes and returns nothing, or a status code `CommonStatusCodes` does not name, said in the\nmessage), or `INVALID_OPTIONS`.",
         "complexTypes": [
           "GrantedAuthorization",
           "ScopesOptions"
@@ -230,7 +230,7 @@
               "name": "since"
             }
           ],
-          "docs": "The access token to remove.",
+          "docs": "The access token to remove, not empty or blank (else the call rejects with `INVALID_OPTIONS`).",
           "complexTypes": [],
           "type": "string"
         }
@@ -251,7 +251,7 @@
               "name": "since"
             }
           ],
-          "docs": "The Google account whose grant is taken back: an authorization's `account`.",
+          "docs": "The Google account whose grant is taken back: an authorization's `account`, not empty or blank (else the call\nrejects with `INVALID_OPTIONS`).",
           "complexTypes": [],
           "type": "string"
         },

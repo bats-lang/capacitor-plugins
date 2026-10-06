@@ -90,11 +90,12 @@ authorizeScopes(options: ScopesOptions) => Promise<GrantedAuthorization>
 The access token for the scopes, showing Google's consent screen when the reader must consent first
 (`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).
 
-Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen returns
-nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code
+Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends without
+completing and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code
 (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen
-with it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token or a
-status code `CommonStatusCodes` does not name, said in the message), or `INVALID_OPTIONS`.
+with it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token, a
+consent screen that completes and returns nothing, or a status code `CommonStatusCodes` does not name, said in the
+message), or `INVALID_OPTIONS`.
 
 | Param         | Type                                                    |
 | ------------- | ------------------------------------------------------- |
@@ -181,16 +182,16 @@ Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALI
 
 #### ClearOptions
 
-| Prop              | Type                | Description                 | Since |
-| ----------------- | ------------------- | --------------------------- | ----- |
-| **`accessToken`** | <code>string</code> | The access token to remove. | 0.1.0 |
+| Prop              | Type                | Description                                                                                    | Since |
+| ----------------- | ------------------- | ---------------------------------------------------------------------------------------------- | ----- |
+| **`accessToken`** | <code>string</code> | The access token to remove, not empty or blank (else the call rejects with `INVALID_OPTIONS`). | 0.1.0 |
 
 
 #### RevokeOptions
 
-| Prop          | Type                  | Description                                                                                                | Since |
-| ------------- | --------------------- | ---------------------------------------------------------------------------------------------------------- | ----- |
-| **`account`** | <code>string</code>   | The Google account whose grant is taken back: an authorization's `account`.                                | 0.1.0 |
-| **`scopes`**  | <code>string[]</code> | The scopes to take back, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`). | 0.1.0 |
+| Prop          | Type                  | Description                                                                                                                                    | Since |
+| ------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| **`account`** | <code>string</code>   | The Google account whose grant is taken back: an authorization's `account`, not empty or blank (else the call rejects with `INVALID_OPTIONS`). | 0.1.0 |
+| **`scopes`**  | <code>string[]</code> | The scopes to take back, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`).                                     | 0.1.0 |
 
 </docgen-api>
