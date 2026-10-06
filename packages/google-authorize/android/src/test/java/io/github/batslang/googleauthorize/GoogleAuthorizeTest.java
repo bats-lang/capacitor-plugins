@@ -481,15 +481,21 @@ public class GoogleAuthorizeTest {
     @Test
     public void aConsentScreenThatCouldNotBeLaunchedIsUnexpected() {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(
-            GoogleAuthorize.RESULT_CANCELED,
-            "androidx's intent",
-            "android.content.IntentSender$SendIntentException: canceled"
-        );
+        // androidx's answer: RESULT_CANCELED, an intent of its own, and the exception it holds
+        Object exception = new IllegalStateException("SendIntentException: canceled");
+        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "androidx's intent", exception);
         assertEquals("failed", answer.only());
         assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
-        assertTrue(answer.failure.message.contains("SendIntentException"));
+        assertTrue(answer.failure.message.contains("SendIntentException: canceled"));
         assertTrue("androidx's intent is not Google's to read", service.consentsReturned.isEmpty());
+    }
+
+    @Test
+    public void anIntentHoldingNoLaunchFailureIsRead() {
+        RecordedAnswer answer = consentShowing();
+        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "returned", null);
+        assertEquals(List.of("returned"), service.consentsReturned);
+        assertTrue("no answer before Google's", answer.kinds.isEmpty());
     }
 
     @Test

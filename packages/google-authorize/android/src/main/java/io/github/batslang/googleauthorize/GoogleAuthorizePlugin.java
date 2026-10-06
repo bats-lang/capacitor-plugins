@@ -37,25 +37,17 @@ public class GoogleAuthorizePlugin extends Plugin {
     }
 
     /**
-     * Why the consent screen could not be shown, or null when it was: androidx answers a launch that threw
-     * IntentSender.SendIntentException with RESULT_CANCELED and an intent of its own action, holding the exception
-     * (ActivityResultContracts.StartIntentSenderForResult's ACTION_INTENT_SENDER_REQUEST and
-     * EXTRA_SEND_INTENT_EXCEPTION).
+     * The exception androidx holds in the intent it returns when the consent screen's launch threw SendIntentException
+     * (its key, StartIntentSenderForResult's EXTRA_SEND_INTENT_EXCEPTION, is androidx's own), as Android gives it, or
+     * null. GoogleAuthorize decides what it means.
      */
     @SuppressWarnings("deprecation") // getSerializableExtra(String): the typed form needs API 33
-    private static String launchFailureOf(Intent returned) {
-        if (
-            returned == null ||
-            !ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST.equals(
-                returned.getAction()
-            )
-        ) {
-            return null;
-        }
-        Object exception = returned.getSerializableExtra(
-            ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION
-        );
-        return String.valueOf(exception);
+    private static Object launchFailureOf(Intent returned) {
+        return returned == null
+            ? null
+            : returned.getSerializableExtra(
+                  ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION
+              );
     }
 
     /** The call's scopes as given: the array's items, whatever they are, or null when there is no array. */

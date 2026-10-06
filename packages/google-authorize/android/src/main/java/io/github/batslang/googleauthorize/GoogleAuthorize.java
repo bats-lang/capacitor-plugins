@@ -180,7 +180,7 @@ final class GoogleAuthorize<Consent, Returned> {
      * nothing to read: with RESULT_CANCELED the reader backed out (Android's convention); with RESULT_OK, or any other
      * code, the answer is UNEXPECTED, naming the code.
      */
-    void consentEnded(int resultCode, Returned returned, String launchFailure) {
+    void consentEnded(int resultCode, Returned returned, Object launchFailure) {
         Answer answer = waiting;
         waiting = null;
         if (answer == null) {

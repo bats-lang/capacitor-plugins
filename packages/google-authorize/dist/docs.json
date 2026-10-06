@@ -186,7 +186,7 @@
               "name": "since"
             }
           ],
-          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.\n\nA non-empty scope Google does not recognise is not refused here: Play services' client library checks only that a\nscope is not empty (`Scope`, in play-services-basement 18.5.0) and that the list is not empty\n(`AuthorizationRequest.Builder.setRequestedScopes`, play-services-auth 21.5.0), and sends it on. What Google\nanswers for it is not documented, so it may be any answer the method documents; a grant names what was granted in\n`grantedScopes`.",
+          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.\n\nA non-empty scope Google does not recognise is not refused here: Play services' client library checks only that a\nscope is not empty (`Scope`, in play-services-basement, which play-services-auth 21.5.0 brings) and that the list is not empty\n(`AuthorizationRequest.Builder.setRequestedScopes`, play-services-auth 21.5.0), and sends it on. What Google\nanswers for it is not documented, so it may be any answer the method documents; a grant names what was granted in\n`grantedScopes`.",
           "complexTypes": [],
           "type": "string[]"
         }

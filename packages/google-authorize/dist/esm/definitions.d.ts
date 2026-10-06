@@ -54,7 +54,7 @@ export interface ScopesOptions {
      * `https://www.googleapis.com/auth/drive.appdata`.
      *
      * A non-empty scope Google does not recognise is not refused here: Play services' client library checks only that a
-     * scope is not empty (`Scope`, in play-services-basement 18.5.0) and that the list is not empty
+     * scope is not empty (`Scope`, in play-services-basement, which play-services-auth 21.5.0 brings) and that the list is not empty
      * (`AuthorizationRequest.Builder.setRequestedScopes`, play-services-auth 21.5.0), and sends it on. What Google
      * answers for it is not documented, so it may be any answer the method documents; a grant names what was granted in
      * `grantedScopes`.
