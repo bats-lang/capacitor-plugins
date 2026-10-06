@@ -1,5 +1,6 @@
 package io.github.batslang.googleauthorize;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,31 +44,40 @@ final class GoogleAuthorize<Consent, Returned> {
     static final String INVALID_ACCOUNT = "account must be a non-blank string";
 
     /**
-     * Whether scopes are what the methods take: a list (null when the call gave no array of strings) of at least one
-     * scope, each a non-blank string. An empty scope would make Play services' Scope throw; a blank one is no scope
+     * Whether scopes are what the methods take: a list (null when the call gave no array) of at least one scope, each
+     * a non-blank string (an item of another type, a number or JSON null, is not one). An empty scope would make Play services' Scope throw; a blank one is no scope
      * (an OAuth scope has no space in it), though Play services would send it on. Either is the plugin's answer to its
      * options, not the platform's to a request.
      */
-    static boolean scopesValid(List<String> scopes) {
+    static boolean scopesValid(List<?> scopes) {
         if (scopes == null || scopes.isEmpty()) {
             return false;
         }
-        for (String scope : scopes) {
-            if (scope == null || scope.isBlank()) {
+        for (Object scope : scopes) {
+            if (!(scope instanceof String name) || name.isBlank()) {
                 return false;
             }
         }
         return true;
     }
 
+    /** Scopes scopesValid took, as the strings they are. */
+    private static List<String> namesOf(List<?> scopes) {
+        List<String> names = new ArrayList<>();
+        for (Object scope : scopes) {
+            names.add((String) scope);
+        }
+        return names;
+    }
+
     /** The token when the scopes are granted, else no authorization; never shows anything. */
-    void authorizationForScopes(List<String> scopes, Answer answer) {
+    void authorizationForScopes(List<?> scopes, Answer answer) {
         if (!scopesValid(scopes)) {
             answer.failed(new Failure(INVALID_OPTIONS, INVALID_SCOPES));
             return;
         }
         service.authorize(
-            scopes,
+            namesOf(scopes),
             new Reply<>() {
                 @Override
                 public void succeeded(Authorizing<Consent> authorizing) {
@@ -87,13 +97,13 @@ final class GoogleAuthorize<Consent, Returned> {
     }
 
     /** The token when the scopes are granted, else after the reader consents on Google's screen. */
-    void authorizeScopes(List<String> scopes, Answer answer) {
+    void authorizeScopes(List<?> scopes, Answer answer) {
         if (!scopesValid(scopes)) {
             answer.failed(new Failure(INVALID_OPTIONS, INVALID_SCOPES));
             return;
         }
         service.authorize(
-            scopes,
+            namesOf(scopes),
             new Reply<>() {
                 @Override
                 public void succeeded(Authorizing<Consent> authorizing) {
@@ -182,7 +192,7 @@ final class GoogleAuthorize<Consent, Returned> {
         service.clearToken(accessToken, doneOrFailed(answer));
     }
 
-    void revokeAccess(String account, List<String> scopes, Answer answer) {
+    void revokeAccess(String account, List<?> scopes, Answer answer) {
         if (!nonBlank(account)) {
             answer.failed(new Failure(INVALID_OPTIONS, INVALID_ACCOUNT));
             return;
@@ -191,7 +201,7 @@ final class GoogleAuthorize<Consent, Returned> {
             answer.failed(new Failure(INVALID_OPTIONS, INVALID_SCOPES));
             return;
         }
-        service.revokeAccess(account, scopes, doneOrFailed(answer));
+        service.revokeAccess(account, namesOf(scopes), doneOrFailed(answer));
     }
 
     private static Reply<Void> doneOrFailed(Answer answer) {

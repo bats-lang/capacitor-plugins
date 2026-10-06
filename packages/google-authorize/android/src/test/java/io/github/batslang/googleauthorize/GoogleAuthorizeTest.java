@@ -369,13 +369,16 @@ public class GoogleAuthorizeTest {
         assertTrue("there is nothing to read", service.consentsReturned.isEmpty());
     }
 
-    /** Scopes no method takes: no list (the call gave no array of strings), none, an empty one, a blank one, a null one. */
-    private static final List<List<String>> INVALID_SCOPE_LISTS = java.util.Arrays.asList(
+    /** Scopes no method takes: no list (the call gave no array), none, an empty one, a blank one, a null one, one that is not a string. */
+    private static final List<List<?>> INVALID_SCOPE_LISTS = java.util.Arrays.asList(
         null,
         List.of(),
         List.of(""),
         List.of("   "),
-        java.util.Arrays.asList("https://www.googleapis.com/auth/drive.appdata", null)
+        java.util.Arrays.asList("https://www.googleapis.com/auth/drive.appdata", null),
+        // an item of another type: a number, and an object as JSONObject.NULL stands for JSON null
+        java.util.Arrays.asList("https://www.googleapis.com/auth/drive.appdata", 42),
+        java.util.Arrays.asList("https://www.googleapis.com/auth/drive.appdata", new Object())
     );
 
     private static void assertInvalid(RecordedAnswer answer) {
@@ -385,7 +388,7 @@ public class GoogleAuthorizeTest {
 
     @Test
     public void authorizationForScopesRefusesScopesItDoesNotTake() {
-        for (List<String> scopes : INVALID_SCOPE_LISTS) {
+        for (List<?> scopes : INVALID_SCOPE_LISTS) {
             RecordedAnswer answer = new RecordedAnswer();
             authorize.authorizationForScopes(scopes, answer);
             assertInvalid(answer);
@@ -395,7 +398,7 @@ public class GoogleAuthorizeTest {
 
     @Test
     public void authorizeScopesRefusesScopesItDoesNotTake() {
-        for (List<String> scopes : INVALID_SCOPE_LISTS) {
+        for (List<?> scopes : INVALID_SCOPE_LISTS) {
             RecordedAnswer answer = new RecordedAnswer();
             authorize.authorizeScopes(scopes, answer);
             assertInvalid(answer);
@@ -406,7 +409,7 @@ public class GoogleAuthorizeTest {
 
     @Test
     public void revokeAccessRefusesScopesItDoesNotTake() {
-        for (List<String> scopes : INVALID_SCOPE_LISTS) {
+        for (List<?> scopes : INVALID_SCOPE_LISTS) {
             RecordedAnswer answer = new RecordedAnswer();
             authorize.revokeAccess("reader@example.com", scopes, answer);
             assertInvalid(answer);

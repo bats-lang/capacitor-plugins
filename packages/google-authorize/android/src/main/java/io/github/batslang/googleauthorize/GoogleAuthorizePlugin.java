@@ -37,21 +37,17 @@ public class GoogleAuthorizePlugin extends Plugin {
         );
     }
 
-    /** The call's scopes: an array of strings, else null (no array, or an item that is not a string). */
-    private static List<String> scopesOf(PluginCall call) {
+    /** The call's scopes as given: the array's items, whatever they are, or null when there is no array. */
+    private static List<Object> scopesOf(PluginCall call) {
         JSArray given = call.getArray("scopes");
         if (given == null) {
             return null;
         }
-        List<String> scopes = new ArrayList<>();
+        List<Object> items = new ArrayList<>();
         for (int i = 0; i < given.length(); i++) {
-            Object scope = given.opt(i);
-            if (!(scope instanceof String)) {
-                return null;
-            }
-            scopes.add((String) scope);
+            items.add(given.opt(i));
         }
-        return scopes;
+        return items;
     }
 
     private static Answer answerOf(PluginCall call) {
