@@ -150,7 +150,7 @@ public class GoogleAuthorizeTest {
         assertEquals(List.of("consent"), consentsShown);
         assertTrue("no answer while the consent shows", answer.kinds.isEmpty());
 
-        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned");
+        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned", null);
         assertEquals(List.of("returned"), service.consentsReturned);
         service.consentReplies.get(0).succeeded(GRANTED);
         assertEquals("authorized", answer.only());
@@ -168,7 +168,7 @@ public class GoogleAuthorizeTest {
     @Test
     public void authorizeScopesIsCanceledWhenTheConsentEndsWithNothingReturned() {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, null);
+        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, null, null);
         assertEquals("failed", answer.only());
         assertEquals(GoogleAuthorize.CANCELED, answer.failure.code);
         assertTrue("there is no result to read", service.consentsReturned.isEmpty());
@@ -177,7 +177,7 @@ public class GoogleAuthorizeTest {
     @Test
     public void aConsentEndedWithoutOkIsReadAndCanceledWhenGoogleSaysSo() {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "returned");
+        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "returned", null);
         assertEquals("the returned intent is read", List.of("returned"), service.consentsReturned);
         assertTrue("no answer before Google's", answer.kinds.isEmpty());
         service.consentReplies.get(0).failed(new Failure("CANCELED", "16: "));
@@ -188,7 +188,7 @@ public class GoogleAuthorizeTest {
     /** A consent ended without RESULT_OK whose intent Google answers with this status: that status is the answer. */
     private void consentEndedWithStatus(String code, String message) {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "returned");
+        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "returned", null);
         assertEquals(List.of("returned"), service.consentsReturned);
         service.consentReplies.get(0).failed(new Failure(code, message));
         assertEquals("failed", answer.only());
@@ -219,7 +219,7 @@ public class GoogleAuthorizeTest {
     @Test
     public void aConsentEndedWithoutOkThatGoogleGrantsGivesTheGrant() {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "returned");
+        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, "returned", null);
         service.consentReplies.get(0).succeeded(GRANTED);
         assertEquals("authorized", answer.only());
         assertSame(GRANTED, answer.authorization);
@@ -230,7 +230,7 @@ public class GoogleAuthorizeTest {
         RecordedAnswer answer = new RecordedAnswer();
         authorize.authorizeScopes(SCOPES, answer);
         service.authorizeReplies.get(0).succeeded(new Authorizing.ConsentNeeded<>("consent"));
-        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned");
+        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned", null);
         service.consentReplies.get(0).failed(new Failure("CANCELED", "16: "));
         assertEquals("failed", answer.only());
         assertEquals("CANCELED", answer.failure.code);
@@ -258,7 +258,7 @@ public class GoogleAuthorizeTest {
         assertEquals("failed", second.only());
         assertEquals(GoogleAuthorize.CONSENT_SHOWING, second.failure.code);
 
-        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned");
+        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned", null);
         service.consentReplies.get(0).succeeded(GRANTED);
         assertEquals("authorized", first.only());
     }
@@ -268,7 +268,7 @@ public class GoogleAuthorizeTest {
         RecordedAnswer first = new RecordedAnswer();
         authorize.authorizeScopes(SCOPES, first);
         service.authorizeReplies.get(0).succeeded(new Authorizing.ConsentNeeded<>("first consent"));
-        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, null);
+        authorize.consentEnded(GoogleAuthorize.RESULT_CANCELED, null, null);
 
         RecordedAnswer second = new RecordedAnswer();
         authorize.authorizeScopes(SCOPES, second);
@@ -279,7 +279,7 @@ public class GoogleAuthorizeTest {
 
     @Test
     public void aConsentResultWithNoCallWaitingIsDropped() {
-        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned");
+        authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned", null);
         assertTrue(service.consentsReturned.isEmpty());
     }
 
@@ -371,7 +371,7 @@ public class GoogleAuthorizeTest {
         for (Authorization grant : NO_TOKENS) {
             setUp();
             RecordedAnswer answer = consentShowing();
-            authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned");
+            authorize.consentEnded(GoogleAuthorize.RESULT_OK, "returned", null);
             service.consentReplies.get(0).succeeded(grant);
             assertEquals("failed", answer.only());
             assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
@@ -381,7 +381,7 @@ public class GoogleAuthorizeTest {
     @Test
     public void aConsentCompletedWithNothingReturnedIsUnexpected() {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(GoogleAuthorize.RESULT_OK, null);
+        authorize.consentEnded(GoogleAuthorize.RESULT_OK, null, null);
         assertEquals("failed", answer.only());
         assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
         assertTrue("there is nothing to read", service.consentsReturned.isEmpty());
@@ -461,7 +461,7 @@ public class GoogleAuthorizeTest {
     @Test
     public void aConsentEndedWithAnotherCodeAndNothingReturnedIsUnexpected() {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(1, null);
+        authorize.consentEnded(1, null, null);
         assertEquals("failed", answer.only());
         assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
         assertTrue("the code is named", answer.failure.message.contains("result code 1"));
@@ -471,10 +471,42 @@ public class GoogleAuthorizeTest {
     @Test
     public void aConsentEndedWithAnotherCodeIsReadWhenItReturnedSomething() {
         RecordedAnswer answer = consentShowing();
-        authorize.consentEnded(1, "returned");
+        authorize.consentEnded(1, "returned", null);
         assertEquals(List.of("returned"), service.consentsReturned);
         service.consentReplies.get(0).failed(new Failure("DEVELOPER_ERROR", "10: "));
         assertEquals("failed", answer.only());
         assertEquals("DEVELOPER_ERROR", answer.failure.code);
+    }
+
+    @Test
+    public void aConsentScreenThatCouldNotBeLaunchedIsUnexpected() {
+        RecordedAnswer answer = consentShowing();
+        authorize.consentEnded(
+            GoogleAuthorize.RESULT_CANCELED,
+            "androidx's intent",
+            "android.content.IntentSender$SendIntentException: canceled"
+        );
+        assertEquals("failed", answer.only());
+        assertEquals(GoogleAuthorize.UNEXPECTED, answer.failure.code);
+        assertTrue(answer.failure.message.contains("SendIntentException"));
+        assertTrue("androidx's intent is not Google's to read", service.consentsReturned.isEmpty());
+    }
+
+    @Test
+    public void aConsentScreenThatThrowsAsItIsShownIsUnexpectedAndFreesTheNextCall() {
+        GoogleAuthorize<String, String> throwing = new GoogleAuthorize<>(service, consent -> {
+            throw new IllegalStateException("launcher not registered");
+        });
+        RecordedAnswer first = new RecordedAnswer();
+        throwing.authorizeScopes(SCOPES, first);
+        service.authorizeReplies.get(0).succeeded(new Authorizing.ConsentNeeded<>("consent"));
+        assertEquals("failed", first.only());
+        assertEquals(GoogleAuthorize.UNEXPECTED, first.failure.code);
+        assertTrue(first.failure.message.contains("IllegalStateException"));
+
+        RecordedAnswer second = new RecordedAnswer();
+        throwing.authorizeScopes(SCOPES, second);
+        service.authorizeReplies.get(1).succeeded(new Authorizing.ConsentNeeded<>("consent"));
+        assertEquals("not refused as CONSENT_SHOWING", GoogleAuthorize.UNEXPECTED, second.failure.code);
     }
 }

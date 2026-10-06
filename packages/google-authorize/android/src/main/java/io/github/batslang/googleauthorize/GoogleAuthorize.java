@@ -153,21 +153,42 @@ final class GoogleAuthorize<Consent, Returned> {
             return;
         }
         waiting = answer;
-        consentScreen.show(consent);
+        try {
+            consentScreen.show(consent);
+        } catch (RuntimeException failure) {
+            // Not shown (androidx throws IllegalStateException for a launcher not registered): answered now, so no
+            // later call is refused as CONSENT_SHOWING
+            waiting = null;
+            answer.failed(
+                new Failure(
+                    UNEXPECTED,
+                    "The consent screen could not be shown: " +
+                        failure.getClass().getSimpleName() +
+                        ": " +
+                        failure.getMessage()
+                )
+            );
+        }
     }
 
     /**
-     * The consent screen's result: its result code, and the intent it returned, or null. Whatever the
+     * The consent screen's result: its result code, the intent it returned (or null), and why it could not be shown
+     * (androidx's answer to a launch that threw), or null when it was. A screen never shown is UNEXPECTED. Whatever the
      * result code, a returned intent is read (getAuthorizationResultFromIntent), so what Google says is the answer: a
      * grant, its CANCELED when the reader backed out (Play services answers CANCELED for an intent with no status), or
      * any other status, such as DEVELOPER_ERROR, which also ends the screen with RESULT_CANCELED. With no intent there is
      * nothing to read: with RESULT_CANCELED the reader backed out (Android's convention); with RESULT_OK, or any other
      * code, the answer is UNEXPECTED, naming the code.
      */
-    void consentEnded(int resultCode, Returned returned) {
+    void consentEnded(int resultCode, Returned returned, String launchFailure) {
         Answer answer = waiting;
         waiting = null;
         if (answer == null) {
+            return;
+        }
+        if (launchFailure != null) {
+            // Never shown: Google said nothing, and the reader did not back out
+            answer.failed(new Failure(UNEXPECTED, "The consent screen could not be shown: " + launchFailure));
             return;
         }
         if (returned == null) {

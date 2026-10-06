@@ -46,7 +46,7 @@
             "text": "0.1.0"
           }
         ],
-        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends with\n`RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code\n(`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen\nwith it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token, no scope or a blank account, a\nconsent screen that ends with `RESULT_OK` or another result code and returns nothing, or a status code `CommonStatusCodes` does not name, said in the\nmessage), or `INVALID_OPTIONS`.",
+        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends with\n`RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the\nplatform's code (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the\nconsent screen with it), `UNEXPECTED` (an answer the platform documents no meaning for, said in the message: a grant\nwith no access token, no scope or a blank account; a consent screen that ends with `RESULT_OK` or another result\ncode and returns nothing; one that could not be shown; a status code `CommonStatusCodes` does not name), or\n`INVALID_OPTIONS`.",
         "complexTypes": [
           "GrantedAuthorization",
           "ScopesOptions"
@@ -186,7 +186,7 @@
               "name": "since"
             }
           ],
-          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.\n\nA well-formed scope Google does not recognise is not refused here: Play services' client library only checks that\na scope is not empty (`Scope`, play-services-auth 21.5.0), and what Google answers for it is decided by Play services\non the device, which no documentation or library code states. It arrives as whatever status Play services gives\n(a `CommonStatusCodes` name, or `UNEXPECTED` for one it does not name), indistinguishable here from that status for\nanother cause.",
+          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.\n\nA non-empty scope Google does not recognise is not refused here: Play services' client library checks only that a\nscope is not empty (`Scope`, in play-services-basement 18.5.0) and that the list is not empty\n(`AuthorizationRequest.Builder.setRequestedScopes`, play-services-auth 21.5.0), and sends it on. What Google\nanswers for it is not documented, so it may be any answer the method documents; a grant names what was granted in\n`grantedScopes`.",
           "complexTypes": [],
           "type": "string[]"
         }

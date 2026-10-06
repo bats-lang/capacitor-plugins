@@ -91,11 +91,12 @@ The access token for the scopes, showing Google's consent screen when the reader
 (`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).
 
 Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends with
-`RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the platform's code
-(`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the consent screen
-with it), `UNEXPECTED` (an answer the platform documents no meaning for, such as a grant with no access token, no scope or a blank account, a
-consent screen that ends with `RESULT_OK` or another result code and returns nothing, or a status code `CommonStatusCodes` does not name, said in the
-message), or `INVALID_OPTIONS`.
+`RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the
+platform's code (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the
+consent screen with it), `UNEXPECTED` (an answer the platform documents no meaning for, said in the message: a grant
+with no access token, no scope or a blank account; a consent screen that ends with `RESULT_OK` or another result
+code and returns nothing; one that could not be shown; a status code `CommonStatusCodes` does not name), or
+`INVALID_OPTIONS`.
 
 | Param         | Type                                                    |
 | ------------- | ------------------------------------------------------- |
@@ -168,9 +169,9 @@ Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALI
 
 #### ScopesOptions
 
-| Prop         | Type                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Since |
-| ------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| **`scopes`** | <code>string[]</code> | The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as `https://www.googleapis.com/auth/drive.appdata`. A well-formed scope Google does not recognise is not refused here: Play services' client library only checks that a scope is not empty (`Scope`, play-services-auth 21.5.0), and what Google answers for it is decided by Play services on the device, which no documentation or library code states. It arrives as whatever status Play services gives (a `CommonStatusCodes` name, or `UNEXPECTED` for one it does not name), indistinguishable here from that status for another cause. | 0.1.0 |
+| Prop         | Type                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Since |
+| ------------ | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| **`scopes`** | <code>string[]</code> | The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as `https://www.googleapis.com/auth/drive.appdata`. A non-empty scope Google does not recognise is not refused here: Play services' client library checks only that a scope is not empty (`Scope`, in play-services-basement 18.5.0) and that the list is not empty (`AuthorizationRequest.Builder.setRequestedScopes`, play-services-auth 21.5.0), and sends it on. What Google answers for it is not documented, so it may be any answer the method documents; a grant names what was granted in `grantedScopes`. | 0.1.0 |
 
 
 #### GrantedAuthorization
