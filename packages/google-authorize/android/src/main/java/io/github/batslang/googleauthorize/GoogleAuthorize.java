@@ -17,6 +17,10 @@ final class GoogleAuthorize<Consent, Returned> {
     static final String CANCELED = "CANCELED";
     /** authorizeScopes was called while another call's consent screen was showing. */
     static final String CONSENT_SHOWING = "CONSENT_SHOWING";
+    /** Activity.RESULT_OK, as Android defines it (GoogleAuthorize uses no Android class). */
+    static final int RESULT_OK = -1;
+    /** Activity.RESULT_CANCELED, as Android defines it. */
+    static final int RESULT_CANCELED = 0;
     /**
      * An answer the platform documents no meaning for (an exception that is not an ApiException, a status code
      * CommonStatusCodes does not name, a grant with no access token): never folded into a known code. Its message says
@@ -141,25 +145,32 @@ final class GoogleAuthorize<Consent, Returned> {
     }
 
     /**
-     * The consent screen's result: whether it completed (RESULT_OK), and the intent it returned, or null. Whatever the
+     * The consent screen's result: its result code, and the intent it returned, or null. Whatever the
      * result code, a returned intent is read (getAuthorizationResultFromIntent), so what Google says is the answer: a
      * grant, its CANCELED when the reader backed out (Play services answers CANCELED for an intent with no status), or
      * any other status, such as DEVELOPER_ERROR, which also ends the screen with RESULT_CANCELED. With no intent there is
-     * nothing to read: without RESULT_OK the reader backed out (Android's convention), and with it the answer is
-     * UNEXPECTED.
+     * nothing to read: with RESULT_CANCELED the reader backed out (Android's convention); with RESULT_OK, or any other
+     * code, the answer is UNEXPECTED, naming the code.
      */
-    void consentEnded(boolean completed, Returned returned) {
+    void consentEnded(int resultCode, Returned returned) {
         Answer answer = waiting;
         waiting = null;
         if (answer == null) {
             return;
         }
         if (returned == null) {
-            if (completed) {
+            if (resultCode == RESULT_CANCELED) {
+                answer.failed(new Failure(CANCELED, "The reader backed out of the consent screen"));
+            } else if (resultCode == RESULT_OK) {
                 // RESULT_OK with nothing to read: no answer Play services documents
                 answer.failed(new Failure(UNEXPECTED, "The consent screen completed but returned nothing"));
             } else {
-                answer.failed(new Failure(CANCELED, "The reader backed out of the consent screen"));
+                answer.failed(
+                    new Failure(
+                        UNEXPECTED,
+                        "The consent screen ended with result code " + resultCode + " and returned nothing"
+                    )
+                );
             }
             return;
         }

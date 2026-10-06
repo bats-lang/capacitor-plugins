@@ -1,6 +1,5 @@
 package io.github.batslang.googleauthorize;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import androidx.activity.result.ActivityResultLauncher;
@@ -30,7 +29,7 @@ public class GoogleAuthorizePlugin extends Plugin {
         // Registered while the activity is created, as an ActivityResultLauncher must be
         ActivityResultLauncher<IntentSenderRequest> consentLauncher = getActivity().registerForActivityResult(
             new ActivityResultContracts.StartIntentSenderForResult(),
-            ended -> authorize.consentEnded(ended.getResultCode() == Activity.RESULT_OK, ended.getData())
+            ended -> authorize.consentEnded(ended.getResultCode(), ended.getData())
         );
         authorize = new GoogleAuthorize<>(new PlayAuthorizationService(getActivity()), consent ->
             consentLauncher.launch(new IntentSenderRequest.Builder(consent.getIntentSender()).build())
