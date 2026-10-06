@@ -9,8 +9,10 @@ export interface GoogleAuthorizePlugin {
      * (`AuthorizationClient.authorize`, with no resolution). When the reader must consent first, nothing is shown and
      * the answer's `authorization` is `null`.
      *
-     * Rejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`), `UNEXPECTED` (an answer
-     * the platform documents no meaning for, said in the message), or `INVALID_OPTIONS`.
+     * Rejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`, with its message),
+     * `UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only these: a grant with no
+     * access token, no scope, a blank scope or a blank account; a status code `CommonStatusCodes` does not name; an
+     * exception that is not an `ApiException`, named by its class), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -22,9 +24,10 @@ export interface GoogleAuthorizePlugin {
      * Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends with
      * `RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the
      * platform's code (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the
-     * consent screen with it), `UNEXPECTED` (an answer the platform documents no meaning for, said in the message: a grant
-     * with no access token, no scope or a blank account; a consent screen that ends with `RESULT_OK` or another result
-     * code and returns nothing; one that could not be shown; a status code `CommonStatusCodes` does not name), or
+     * consent screen with it), `UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only
+     * these: a grant with no access token, no scope, a blank scope or a blank account; a consent screen that ends with
+     * `RESULT_OK` or another result code and returns nothing; one that could not be shown, or whose launch threw; a status
+     * code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or
      * `INVALID_OPTIONS`.
      *
      * @since 0.1.0
@@ -34,7 +37,9 @@ export interface GoogleAuthorizePlugin {
      * Removes the access token from Play services' cache (`AuthorizationClient.clearToken`), so that the next
      * authorization gets a new one: for a token that Google refused.
      *
-     * Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALID_OPTIONS`.
+     * Rejects with the platform's code (with its message), `UNEXPECTED` (said in the message, and only these: a status
+     * code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or
+     * `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -42,7 +47,9 @@ export interface GoogleAuthorizePlugin {
     /**
      * Takes back the account's grant of the scopes (`AuthorizationClient.revokeAccess`).
      *
-     * Rejects with the platform's code, `UNEXPECTED` (said in the message), or `INVALID_OPTIONS`.
+     * Rejects with the platform's code (with its message), `UNEXPECTED` (said in the message, and only these: a status
+     * code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or
+     * `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
