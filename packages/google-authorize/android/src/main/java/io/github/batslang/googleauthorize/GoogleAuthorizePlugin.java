@@ -1,6 +1,5 @@
 package io.github.batslang.googleauthorize;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import androidx.activity.result.ActivityResultLauncher;
@@ -23,9 +22,6 @@ import org.json.JSONArray;
 @CapacitorPlugin(name = "GoogleAuthorize")
 public class GoogleAuthorizePlugin extends Plugin {
 
-    /** An option is missing or is not what the method takes. */
-    static final String INVALID_OPTIONS = "INVALID_OPTIONS";
-
     private GoogleAuthorize<PendingIntent, Intent> authorize;
 
     @Override
@@ -33,28 +29,38 @@ public class GoogleAuthorizePlugin extends Plugin {
         // Registered while the activity is created, as an ActivityResultLauncher must be
         ActivityResultLauncher<IntentSenderRequest> consentLauncher = getActivity().registerForActivityResult(
             new ActivityResultContracts.StartIntentSenderForResult(),
-            ended -> authorize.consentEnded(ended.getResultCode() == Activity.RESULT_OK, ended.getData())
+            ended -> authorize.consentEnded(ended.getResultCode(), ended.getData(), launchFailureOf(ended.getData()))
         );
         authorize = new GoogleAuthorize<>(new PlayAuthorizationService(getActivity()), consent ->
             consentLauncher.launch(new IntentSenderRequest.Builder(consent.getIntentSender()).build())
         );
     }
 
-    /** The call's scopes: a non-empty array of strings, else null. */
-    private static List<String> scopesOf(PluginCall call) {
+    /**
+     * The exception androidx holds in the intent it returns when the consent screen's launch threw SendIntentException
+     * (its key, StartIntentSenderForResult's EXTRA_SEND_INTENT_EXCEPTION, is androidx's own), as Android gives it, or
+     * null. GoogleAuthorize decides what it means.
+     */
+    @SuppressWarnings("deprecation") // getSerializableExtra(String): the typed form needs API 33
+    private static Object launchFailureOf(Intent returned) {
+        return returned == null
+            ? null
+            : returned.getSerializableExtra(
+                  ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION
+              );
+    }
+
+    /** The call's scopes as given: the array's items, whatever they are, or null when there is no array. */
+    private static List<Object> scopesOf(PluginCall call) {
         JSArray given = call.getArray("scopes");
-        if (given == null || given.length() == 0) {
+        if (given == null) {
             return null;
         }
-        List<String> scopes = new ArrayList<>();
+        List<Object> items = new ArrayList<>();
         for (int i = 0; i < given.length(); i++) {
-            Object scope = given.opt(i);
-            if (!(scope instanceof String)) {
-                return null;
-            }
-            scopes.add((String) scope);
+            items.add(given.opt(i));
         }
-        return scopes;
+        return items;
     }
 
     private static Answer answerOf(PluginCall call) {
@@ -89,44 +95,25 @@ public class GoogleAuthorizePlugin extends Plugin {
         };
     }
 
+    // Each method only reads its options; GoogleAuthorize checks them (INVALID_OPTIONS) before Play services is called
+
     @PluginMethod
     public void authorizationForScopes(PluginCall call) {
-        List<String> scopes = scopesOf(call);
-        if (scopes == null) {
-            call.reject("scopes must be a non-empty array of strings", INVALID_OPTIONS);
-            return;
-        }
-        authorize.authorizationForScopes(scopes, answerOf(call));
+        authorize.authorizationForScopes(scopesOf(call), answerOf(call));
     }
 
     @PluginMethod
     public void authorizeScopes(PluginCall call) {
-        List<String> scopes = scopesOf(call);
-        if (scopes == null) {
-            call.reject("scopes must be a non-empty array of strings", INVALID_OPTIONS);
-            return;
-        }
-        authorize.authorizeScopes(scopes, answerOf(call));
+        authorize.authorizeScopes(scopesOf(call), answerOf(call));
     }
 
     @PluginMethod
     public void clearAuthorizationToken(PluginCall call) {
-        String accessToken = call.getString("accessToken");
-        if (accessToken == null || accessToken.isEmpty()) {
-            call.reject("accessToken must be a non-empty string", INVALID_OPTIONS);
-            return;
-        }
-        authorize.clearAuthorizationToken(accessToken, answerOf(call));
+        authorize.clearAuthorizationToken(call.getString("accessToken"), answerOf(call));
     }
 
     @PluginMethod
     public void revokeAccess(PluginCall call) {
-        String account = call.getString("account");
-        List<String> scopes = scopesOf(call);
-        if (account == null || account.isEmpty() || scopes == null) {
-            call.reject("account must be a non-empty string, and scopes a non-empty array of strings", INVALID_OPTIONS);
-            return;
-        }
-        authorize.revokeAccess(account, scopes, answerOf(call));
+        authorize.revokeAccess(call.getString("account"), scopesOf(call), answerOf(call));
     }
 }

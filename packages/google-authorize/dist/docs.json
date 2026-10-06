@@ -22,7 +22,7 @@
             "text": "0.1.0"
           }
         ],
-        "docs": "The access token for the scopes when they are already granted, without showing anything\n(`AuthorizationClient.authorize`, with no resolution). When the reader must consent first, nothing is shown and\nthe answer's `authorization` is `null`.\n\nRejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`), or `INVALID_OPTIONS`.",
+        "docs": "The access token for the scopes when they are already granted, without showing anything\n(`AuthorizationClient.authorize`, with no resolution). When the reader must consent first, nothing is shown and\nthe answer's `authorization` is `null`.\n\nRejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`, with its message),\n`UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only these: a grant with no\naccess token, no scope, a blank scope or a blank account; a status code `CommonStatusCodes` does not name; an\nexception that is not an `ApiException`, named by its class), or `INVALID_OPTIONS`.",
         "complexTypes": [
           "AuthorizationAnswer",
           "ScopesOptions"
@@ -46,7 +46,7 @@
             "text": "0.1.0"
           }
         ],
-        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out, `CONSENT_SHOWING` while another call's consent screen is\nshowing, the platform's code (`CommonStatusCodes`' name), or `INVALID_OPTIONS`.",
+        "docs": "The access token for the scopes, showing Google's consent screen when the reader must consent first\n(`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).\n\nRejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends with\n`RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the\nplatform's code (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the\nconsent screen with it), `UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only\nthese: a grant with no access token, no scope, a blank scope or a blank account; a consent screen that ends with\n`RESULT_OK` or another result code and returns nothing; one that could not be shown, or whose launch threw; a status\ncode `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or\n`INVALID_OPTIONS`.",
         "complexTypes": [
           "GrantedAuthorization",
           "ScopesOptions"
@@ -70,7 +70,7 @@
             "text": "0.1.0"
           }
         ],
-        "docs": "Removes the access token from Play services' cache (`AuthorizationClient.clearToken`), so that the next\nauthorization gets a new one: for a token that Google refused.\n\nRejects with the platform's code, or `INVALID_OPTIONS`.",
+        "docs": "Removes the access token from Play services' cache (`AuthorizationClient.clearToken`), so that the next\nauthorization gets a new one: for a token that Google refused.\n\nRejects with the platform's code (with its message), `UNEXPECTED` (said in the message, and only these: a status\ncode `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or\n`INVALID_OPTIONS`.",
         "complexTypes": [
           "ClearOptions"
         ],
@@ -93,7 +93,7 @@
             "text": "0.1.0"
           }
         ],
-        "docs": "Takes back the account's grant of the scopes (`AuthorizationClient.revokeAccess`).\n\nRejects with the platform's code, or `INVALID_OPTIONS`.",
+        "docs": "Takes back the account's grant of the scopes (`AuthorizationClient.revokeAccess`).\n\nRejects with the platform's code (with its message), `UNEXPECTED` (said in the message, and only these: a status\ncode `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or\n`INVALID_OPTIONS`.",
         "complexTypes": [
           "RevokeOptions"
         ],
@@ -186,7 +186,7 @@
               "name": "since"
             }
           ],
-          "docs": "The OAuth scopes, at least one, such as `https://www.googleapis.com/auth/drive.appdata`.",
+          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.\n\nA non-empty scope Google does not recognise is not refused here: Play services' client library checks only that a\nscope is not empty (`Scope`, in play-services-basement, which play-services-auth 21.5.0 brings) and that the list is not empty\n(`AuthorizationRequest.Builder.setRequestedScopes`, play-services-auth 21.5.0), and sends it on. What Google\nanswers for it is not documented, so it may be any answer the method documents; a grant names what was granted in\n`grantedScopes`.",
           "complexTypes": [],
           "type": "string[]"
         }
@@ -230,7 +230,7 @@
               "name": "since"
             }
           ],
-          "docs": "The access token to remove.",
+          "docs": "The access token to remove, not empty or blank (else the call rejects with `INVALID_OPTIONS`).",
           "complexTypes": [],
           "type": "string"
         }
@@ -251,7 +251,7 @@
               "name": "since"
             }
           ],
-          "docs": "The Google account whose grant is taken back: an authorization's `account`.",
+          "docs": "The Google account whose grant is taken back: an authorization's `account`, not empty or blank (else the call\nrejects with `INVALID_OPTIONS`).",
           "complexTypes": [],
           "type": "string"
         },
@@ -263,7 +263,7 @@
               "name": "since"
             }
           ],
-          "docs": "The scopes to take back, at least one.",
+          "docs": "The scopes to take back, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`).",
           "complexTypes": [],
           "type": "string[]"
         }

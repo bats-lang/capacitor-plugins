@@ -9,7 +9,10 @@ export interface GoogleAuthorizePlugin {
      * (`AuthorizationClient.authorize`, with no resolution). When the reader must consent first, nothing is shown and
      * the answer's `authorization` is `null`.
      *
-     * Rejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`), or `INVALID_OPTIONS`.
+     * Rejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`, with its message),
+     * `UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only these: a grant with no
+     * access token, no scope, a blank scope or a blank account; a status code `CommonStatusCodes` does not name; an
+     * exception that is not an `ApiException`, named by its class), or `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -18,8 +21,14 @@ export interface GoogleAuthorizePlugin {
      * The access token for the scopes, showing Google's consent screen when the reader must consent first
      * (`AuthorizationClient.authorize`, then its resolution's intent, then `getAuthorizationResultFromIntent`).
      *
-     * Rejects with `CANCELED` when the reader backs out, `CONSENT_SHOWING` while another call's consent screen is
-     * showing, the platform's code (`CommonStatusCodes`' name), or `INVALID_OPTIONS`.
+     * Rejects with `CANCELED` when the reader backs out (Google's result says so, or the consent screen ends with
+     * `RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the
+     * platform's code (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the
+     * consent screen with it), `UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only
+     * these: a grant with no access token, no scope, a blank scope or a blank account; a consent screen that ends with
+     * `RESULT_OK` or another result code and returns nothing; one that could not be shown, or whose launch threw; a status
+     * code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or
+     * `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -28,7 +37,9 @@ export interface GoogleAuthorizePlugin {
      * Removes the access token from Play services' cache (`AuthorizationClient.clearToken`), so that the next
      * authorization gets a new one: for a token that Google refused.
      *
-     * Rejects with the platform's code, or `INVALID_OPTIONS`.
+     * Rejects with the platform's code (with its message), `UNEXPECTED` (said in the message, and only these: a status
+     * code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or
+     * `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -36,7 +47,9 @@ export interface GoogleAuthorizePlugin {
     /**
      * Takes back the account's grant of the scopes (`AuthorizationClient.revokeAccess`).
      *
-     * Rejects with the platform's code, or `INVALID_OPTIONS`.
+     * Rejects with the platform's code (with its message), `UNEXPECTED` (said in the message, and only these: a status
+     * code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or
+     * `INVALID_OPTIONS`.
      *
      * @since 0.1.0
      */
@@ -44,7 +57,14 @@ export interface GoogleAuthorizePlugin {
 }
 export interface ScopesOptions {
     /**
-     * The OAuth scopes, at least one, such as `https://www.googleapis.com/auth/drive.appdata`.
+     * The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as
+     * `https://www.googleapis.com/auth/drive.appdata`.
+     *
+     * A non-empty scope Google does not recognise is not refused here: Play services' client library checks only that a
+     * scope is not empty (`Scope`, in play-services-basement, which play-services-auth 21.5.0 brings) and that the list is not empty
+     * (`AuthorizationRequest.Builder.setRequestedScopes`, play-services-auth 21.5.0), and sends it on. What Google
+     * answers for it is not documented, so it may be any answer the method documents; a grant names what was granted in
+     * `grantedScopes`.
      *
      * @since 0.1.0
      */
@@ -90,7 +110,7 @@ export interface GrantedAuthorization {
 }
 export interface ClearOptions {
     /**
-     * The access token to remove.
+     * The access token to remove, not empty or blank (else the call rejects with `INVALID_OPTIONS`).
      *
      * @since 0.1.0
      */
@@ -98,13 +118,14 @@ export interface ClearOptions {
 }
 export interface RevokeOptions {
     /**
-     * The Google account whose grant is taken back: an authorization's `account`.
+     * The Google account whose grant is taken back: an authorization's `account`, not empty or blank (else the call
+     * rejects with `INVALID_OPTIONS`).
      *
      * @since 0.1.0
      */
     account: string;
     /**
-     * The scopes to take back, at least one.
+     * The scopes to take back, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`).
      *
      * @since 0.1.0
      */
