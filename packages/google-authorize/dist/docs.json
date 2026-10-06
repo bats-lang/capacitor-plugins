@@ -186,7 +186,7 @@
               "name": "since"
             }
           ],
-          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.",
+          "docs": "The OAuth scopes, at least one, none empty or blank (else the call rejects with `INVALID_OPTIONS`), such as\n`https://www.googleapis.com/auth/drive.appdata`.\n\nA well-formed scope Google does not recognise is not refused here: Play services' client library only checks that\na scope is not empty (`Scope`, play-services-auth 21.5.0), and what Google answers for it is decided by Play services\non the device, which no documentation or library code states. It arrives as whatever status Play services gives\n(a `CommonStatusCodes` name, or `UNEXPECTED` for one it does not name), indistinguishable here from that status for\nanother cause.",
           "complexTypes": [],
           "type": "string[]"
         }
