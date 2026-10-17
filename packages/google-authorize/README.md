@@ -82,8 +82,9 @@ the answer's `authorization` is `null`.
 
 Rejects with the platform's code (`CommonStatusCodes`' name, such as `NETWORK_ERROR`, with its message),
 `UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only these: a grant with no
-access token, no scope, a blank scope or a blank account; a status code `CommonStatusCodes` does not name; an
-exception that is not an `ApiException`, named by its class), or `INVALID_OPTIONS`.
+access token, no scope, a blank scope or a blank account; a `CANCELED` status from the call, which showed nothing,
+saying no consent screen was shown; a status code `CommonStatusCodes` does not name; an exception that is not an
+`ApiException`, named by its class), or `INVALID_OPTIONS`.
 
 | Param         | Type                                                    |
 | ------------- | ------------------------------------------------------- |
@@ -109,10 +110,11 @@ Rejects with `CANCELED` when the reader backs out (Google's result says so, or t
 `RESULT_CANCELED` and returns nothing), `CONSENT_SHOWING` while another call's consent screen is showing, the
 platform's code (`CommonStatusCodes`' name, such as `DEVELOPER_ERROR`, with its message, also when Google ends the
 consent screen with it), `UNEXPECTED` (an answer the platform documents no meaning for, said in the message, and only
-these: a grant with no access token, no scope, a blank scope or a blank account; a consent screen that ends with
-`RESULT_OK` or another result code and returns nothing; one that could not be shown, or whose launch threw; a status
-code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its class), or
-`INVALID_OPTIONS`.
+these: a grant with no access token, no scope, a blank scope or a blank account; a `CANCELED` status from the first
+call, before any consent screen was shown (the reader did not back out, so it is not `CANCELED`); a consent screen
+that ends with `RESULT_OK` or another result code and returns nothing; one that could not be shown, or whose launch
+threw; a status code `CommonStatusCodes` does not name; an exception that is not an `ApiException`, named by its
+class), or `INVALID_OPTIONS`.
 
 | Param         | Type                                                    |
 | ------------- | ------------------------------------------------------- |
