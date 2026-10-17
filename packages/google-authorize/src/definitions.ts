@@ -2,6 +2,10 @@
  * Google authorization with no sign-in, over Play services' `AuthorizationClient` on Android, shaped as Flutter's
  * google_sign_in 7.x `GoogleSignInAuthorizationClient`. Android only: in a browser and on iOS each method rejects
  * with Capacitor's `UNIMPLEMENTED`.
+ *
+ * The status codes named below are `CommonStatusCodes`' names in the play-services-basement the app links (18.9.0 with
+ * play-services-auth 21.5.0, the version checked; an app's `playServicesAuthVersion` may replace it, see the README).
+ * A code that library does not name is `UNEXPECTED`.
  */
 export interface GoogleAuthorizePlugin {
   /**

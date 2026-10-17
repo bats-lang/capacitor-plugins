@@ -2,7 +2,7 @@
   "api": {
     "name": "GoogleAuthorizePlugin",
     "slug": "googleauthorizeplugin",
-    "docs": "Google authorization with no sign-in, over Play services' `AuthorizationClient` on Android, shaped as Flutter's\ngoogle_sign_in 7.x `GoogleSignInAuthorizationClient`. Android only: in a browser and on iOS each method rejects\nwith Capacitor's `UNIMPLEMENTED`.",
+    "docs": "Google authorization with no sign-in, over Play services' `AuthorizationClient` on Android, shaped as Flutter's\ngoogle_sign_in 7.x `GoogleSignInAuthorizationClient`. Android only: in a browser and on iOS each method rejects\nwith Capacitor's `UNIMPLEMENTED`.\n\nThe status codes named below are `CommonStatusCodes`' names in the play-services-basement the app links (18.9.0 with\nplay-services-auth 21.5.0, the version checked; an app's `playServicesAuthVersion` may replace it, see the README).\nA code that library does not name is `UNEXPECTED`.",
     "tags": [],
     "methods": [
       {
