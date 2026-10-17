@@ -25,6 +25,23 @@ public class PlayAuthorizationServiceTest {
     }
 
     @Test
+    public void aCanceledStatusFromAuthorizeBeforeAnyConsentIsUnexpectedNotCanceled() {
+        Failure failure = PlayAuthorizationService.authorizeFailureOf(
+            new ApiException(new Status(CommonStatusCodes.CANCELED))
+        );
+        assertEquals(GoogleAuthorize.UNEXPECTED, failure.code);
+        assertEquals("No consent screen was shown: authorize() failed with status CANCELED (16)", failure.message);
+    }
+
+    @Test
+    public void otherStatusesFromAuthorizeAreNamedAsTheyAre() {
+        Failure failure = PlayAuthorizationService.authorizeFailureOf(
+            new ApiException(new Status(CommonStatusCodes.NETWORK_ERROR))
+        );
+        assertEquals("NETWORK_ERROR", failure.code);
+    }
+
+    @Test
     public void aDeveloperErrorIsNamedWithItsMessage() {
         Failure failure = PlayAuthorizationService.failureOf(
             new ApiException(new Status(CommonStatusCodes.DEVELOPER_ERROR, "no client for this app"))

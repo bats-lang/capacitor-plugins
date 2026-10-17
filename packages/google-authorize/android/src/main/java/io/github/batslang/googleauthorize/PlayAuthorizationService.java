@@ -41,6 +41,9 @@ final class PlayAuthorizationService implements AuthorizationService<PendingInte
         return scopes;
     }
 
+    /** The name CommonStatusCodes gives the reader's cancel (status 16). */
+    private static final String CANCELED = "CANCELED";
+
     /** What CommonStatusCodes.getStatusCodeString answers for a status code it does not name. */
     private static final String UNNAMED_STATUS = "unknown status code";
 
@@ -65,6 +68,26 @@ final class PlayAuthorizationService implements AuthorizationService<PendingInte
             GoogleAuthorize.UNEXPECTED,
             exception.getClass().getSimpleName() + ": " + String.valueOf(exception.getMessage())
         );
+    }
+
+    /**
+     * A failure of the first authorize() call, before any consent screen was shown. Play services answers the reader's
+     * cancel as CANCELED (status 16), but this call showed nothing, so the reader did not back out: it is UNEXPECTED,
+     * saying no consent screen was shown and what the status was, never CANCELED. Anything else is failureOf's.
+     */
+    static Failure authorizeFailureOf(Exception exception) {
+        Failure failure = failureOf(exception);
+        if (exception instanceof ApiException apiException && CANCELED.equals(failure.code)) {
+            return new Failure(
+                GoogleAuthorize.UNEXPECTED,
+                "No consent screen was shown: authorize() failed with status " +
+                    CANCELED +
+                    " (" +
+                    apiException.getStatusCode() +
+                    ")"
+            );
+        }
+        return failure;
     }
 
     // toGoogleSignInAccount is deprecated with GoogleSignIn, but it is the one way an AuthorizationResult names its
@@ -98,7 +121,7 @@ final class PlayAuthorizationService implements AuthorizationService<PendingInte
                         : new Authorizing.Granted<>(authorizationOf(result))
                 )
             )
-            .addOnFailureListener(exception -> reply.failed(failureOf(exception)));
+            .addOnFailureListener(exception -> reply.failed(authorizeFailureOf(exception)));
     }
 
     @Override
