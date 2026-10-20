@@ -1,7 +1,7 @@
 name: review-gate
 
-# No pull request merges before an adversarial review (CLAUDE.md,
-# "Adversarial review before merge"). Copied from bats-lang/bridge's
+# No pull request merges before an adversarial review (keyword: adversarial
+# review). Copied from bats-lang/bridge's
 # review-gate.yml (at 7b7d438), with the same trust and format rules.
 # This sets the commit status `adversarial-review` on each pull
 # request's head commit. It fails closed: success only for a perfectly
