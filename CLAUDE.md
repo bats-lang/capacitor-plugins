@@ -142,6 +142,17 @@ keeps passing:
   wrapper jar checked by Gradle's wrapper validation), and each Android
   dependency by its exact version.
 
+Which tool moves which pin (bats-lang/capacitor-plugins#15, decided on
+bats-lang/repository-prototype#367): Dependabot
+(`.github/dependabot.yml`, weekly, a 7-day cooldown) moves the actions by
+commit with their release comments, the npm versions and `pnpm-lock.yaml`
+of the root (the workspace's packages share it, so they have no entry of
+their own), and the Gradle versions and wrapper of each
+`packages/*/android` project. Renovate moves `.nvmrc` (Node) and
+`.java-version` (the JDK) once the Renovate app is installed
+(bats-lang/repository-prototype#369), and by hand until then. The pnpm
+version in `packageManager` is moved by hand.
+
 `.github/workflows/check.yml` has one job, `check`, which main's ruleset
 requires. It installs, lints and checks the format (ESLint, Prettier,
 with Prettier's Java plugin for the Android code), builds each package
