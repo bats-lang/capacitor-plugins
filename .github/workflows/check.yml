@@ -1,6 +1,6 @@
 name: check
 
-# The one required check (CLAUDE.md, "CI"): lint and format, each
+# The one required check (keyword: check.yml): lint and format, each
 # package built from its source with the committed dist/ and API docs
 # exactly what that build writes, and each package's Android project
 # built and tested. Every action is pinned by commit, Node by .nvmrc,
@@ -66,7 +66,7 @@ jobs:
       - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
-          java-version: '21.0.12+8.0.LTS'
+          java-version-file: .java-version
 
       - name: Android, each package
         run: |

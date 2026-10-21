@@ -6,6 +6,10 @@ and pwa's generated app installs exactly those, each from a commit of
 this repository's main and its folder, so one plugin's manifest and
 permissions never reach an app that does not use it.
 
+## Comments name their area by keyword
+
+A comment states its reason in one line and names the area by keyword; the detail lives in this file: search it for the keyword before changing the code.
+
 ## Decisions are made by research, not left to the human
 
 No task is left to the human unless an agent physically cannot do it (a
