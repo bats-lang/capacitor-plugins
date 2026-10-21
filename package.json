@@ -18,6 +18,6 @@
     "prettier-plugin-java": "2.11.0",
     "rollup": "4.64.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.0"
+    "typescript-eslint": "8.71.2"
   }
 }
