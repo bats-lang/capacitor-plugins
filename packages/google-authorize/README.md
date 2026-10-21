@@ -21,8 +21,17 @@ There is no offline access (no server auth code).
 ```
 
 with `nodeLinker: hoisted` in the app's `pnpm-workspace.yaml`, then
-`pnpm exec cap sync android`. It uses `play-services-auth` 21.5.0 (an
-app sets `playServicesAuthVersion` in its root `ext` to change it).
+`pnpm exec cap sync android`. It uses `play-services-auth` 21.5.0, which
+brings `play-services-basement` 18.9.0: the versions the status codes
+named in this README were checked against, and no other version was. An
+app may set `playServicesAuthVersion` in its root `ext` to use another
+(Capacitor plugins take their versions this way; Capawesome's Google Play
+Services plugin documents the same override for a conflict with another
+plugin, and Gradle's `strictly` constraint would fail the build of an app
+that needs another version, so the plugin does not pin it). A status code
+is not read from a table here: the plugin asks `CommonStatusCodes` for the
+name of the code the linked library gives, so a name is that library's own,
+and a code it does not name is `UNEXPECTED`, as the methods below say.
 
 ## Use
 
@@ -56,6 +65,10 @@ from Play services' cache before asking again.
 Google authorization with no sign-in, over Play services' `AuthorizationClient` on Android, shaped as Flutter's
 google_sign_in 7.x `GoogleSignInAuthorizationClient`. Android only: in a browser and on iOS each method rejects
 with Capacitor's `UNIMPLEMENTED`.
+
+The status codes named below are `CommonStatusCodes`' names in the play-services-basement the app links (18.9.0 with
+play-services-auth 21.5.0, the version checked; an app's `playServicesAuthVersion` may replace it, see the README).
+A code that library does not name is `UNEXPECTED`.
 
 ### authorizationForScopes(...)
 
