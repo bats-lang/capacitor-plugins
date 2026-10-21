@@ -1,0 +1,40 @@
+# Keeps the pins of CI moving through reviewed pull requests (bats-lang/
+# capacitor-plugins#15, as dom#93 and bridge#174 have it). Dependabot's
+# github-actions ecosystem updates each action pinned by commit with its
+# "# vX.Y.Z" comment. npm reads the root package.json and pnpm-lock.yaml:
+# the workspace's packages share that one lock, so they have no entry of
+# their own (dependabot-core#10758 and project-100#6 found separate entries
+# fail). gradle reads each Android project's build files and its wrapper.
+#
+# Not here: Node's version (.nvmrc) and the JDK's (.java-version), which
+# check.yml and demo-apk.yml read through node-version-file and
+# java-version-file: Dependabot's docs name neither file, so Renovate's
+# managers move them once the Renovate app is installed
+# (bats-lang/repository-prototype#369), and by hand until then. pnpm's
+# version in package.json's packageManager is moved by hand too.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # a release is a week old before it is proposed, so a compromised one
+    # can be noticed first
+    cooldown:
+      default-days: 7
+    # no bats-lang action is used here today; kept as in dom and bridge
+    ignore:
+      - dependency-name: bats-lang/*
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  - package-ecosystem: gradle
+    directories:
+      - /packages/*/android
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
