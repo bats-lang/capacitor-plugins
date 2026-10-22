@@ -173,6 +173,12 @@ and directories are unchanged. A weekly run opens one pull request for the
 three ecosystems and one `check` run. Documentation:
 https://docs.github.com/en/code-security/concepts/supply-chain-security/multi-ecosystem-updates
 
+typescript major versions are ignored until typescript-eslint supports them:
+the `npm` entry has `ignore` with `dependency-name: typescript` and
+`update-types: ["version-update:semver-major"]`, because `pnpm run lint`
+fails under a typescript major that typescript-eslint does not support.
+Minor and patch updates of typescript still arrive.
+
 `.github/workflows/check.yml` has one job, `check`, which main's ruleset
 requires. It installs, lints and checks the format (ESLint, Prettier,
 with Prettier's Java plugin for the Android code), builds each package

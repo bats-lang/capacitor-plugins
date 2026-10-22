@@ -40,6 +40,10 @@ updates:
     patterns: ['*']
     cooldown:
       default-days: 7
+    # typescript-eslint support: the typescript major is ignored (CLAUDE.md)
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
   - package-ecosystem: gradle
     directories:
       - /packages/*/android
