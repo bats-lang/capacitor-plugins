@@ -12,12 +12,21 @@
 # managers move them once the Renovate app is installed
 # (bats-lang/repository-prototype#369), and by hand until then. pnpm's
 # version in package.json's packageManager is moved by hand too.
+#
+# One pull request for all of them (bats-lang/capacitor-plugins#27, as quire#799
+# and pwa#160): the group below spans every ecosystem, so a weekly run opens one
+# pull request and one `check` run, not one for each update.
 version: 2
+multi-ecosystem-groups:
+  dependencies:
+    schedule:
+      interval: weekly
+    patterns: ['*']
 updates:
   - package-ecosystem: github-actions
     directory: /
-    schedule:
-      interval: weekly
+    multi-ecosystem-group: dependencies
+    patterns: ['*']
     # a release is a week old before it is proposed, so a compromised one
     # can be noticed first
     cooldown:
@@ -27,14 +36,14 @@ updates:
       - dependency-name: bats-lang/*
   - package-ecosystem: npm
     directory: /
-    schedule:
-      interval: weekly
+    multi-ecosystem-group: dependencies
+    patterns: ['*']
     cooldown:
       default-days: 7
   - package-ecosystem: gradle
     directories:
       - /packages/*/android
-    schedule:
-      interval: weekly
+    multi-ecosystem-group: dependencies
+    patterns: ['*']
     cooldown:
       default-days: 7
