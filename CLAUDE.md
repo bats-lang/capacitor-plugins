@@ -157,6 +157,17 @@ their own), and the Gradle versions and wrapper of each
 (bats-lang/repository-prototype#369), and by hand until then. The pnpm
 version in `packageManager` is moved by hand.
 
+All of Dependabot's updates arrive in one pull request (owner ruling on
+quire#795, bats-lang/capacitor-plugins#27, as quire#799 and pwa#160):
+`.github/dependabot.yml` has one top-level `multi-ecosystem-groups` group,
+`dependencies`, holding `schedule: interval: weekly` and `patterns: ["*"]`;
+the `github-actions`, `npm` and `gradle` entries each join it with
+`multi-ecosystem-group: dependencies` and `patterns: ["*"]` and have no
+`schedule` of their own, since the group carries it. Their cooldowns, ignores
+and directories are unchanged. A weekly run opens one pull request for the
+three ecosystems and one `check` run. Documentation:
+https://docs.github.com/en/code-security/concepts/supply-chain-security/multi-ecosystem-updates
+
 `.github/workflows/check.yml` has one job, `check`, which main's ruleset
 requires. It installs, lints and checks the format (ESLint, Prettier,
 with Prettier's Java plugin for the Android code), builds each package
