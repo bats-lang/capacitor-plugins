@@ -98,6 +98,11 @@ packages/<name>/
   install is), and its JVM unit tests run in CI. The platform client is
   behind a small interface of the plugin's own, so each branch (each
   answer, each failure) is tested with a fake of it.
+- The unit tests run for the debug and the release build type
+  (`:testDebugUnitTest` and `:testReleaseUnitTest`). AGP 9 changed the
+  default of `android.onlyEnableUnitTestForTheTestedBuildType` to `true`
+  (debug only); each `gradle.properties` sets it `false`, and the CI log
+  must show both tasks.
 
 ## `dist/` is committed and checked
 
