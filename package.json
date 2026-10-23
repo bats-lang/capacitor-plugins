@@ -14,10 +14,10 @@
     "@capacitor/docgen": "0.3.1",
     "@eslint/js": "10.0.1",
     "eslint": "10.12.0",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "prettier-plugin-java": "2.11.0",
-    "rollup": "4.64.0",
+    "rollup": "4.64.7",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.0"
+    "typescript-eslint": "8.71.2"
   }
 }
