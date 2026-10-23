@@ -168,8 +168,9 @@ quire#795, bats-lang/capacitor-plugins#27, as quire#799 and pwa#160):
 `dependencies`, holding `schedule: interval: weekly` and `patterns: ["*"]`;
 the `github-actions`, `npm` and `gradle` entries each join it with
 `multi-ecosystem-group: dependencies` and `patterns: ["*"]` and have no
-`schedule` of their own, since the group carries it. Their cooldowns, ignores
-and directories are unchanged. A weekly run opens one pull request for the
+`schedule` of their own, since the group carries it. Each entry keeps its own
+cooldown, ignores and directories: the group carries only the schedule and the
+patterns. A weekly run opens one pull request for the
 three ecosystems and one `check` run. Documentation:
 https://docs.github.com/en/code-security/concepts/supply-chain-security/multi-ecosystem-updates
 
@@ -177,7 +178,10 @@ typescript major versions are ignored until typescript-eslint supports them:
 the `npm` entry has `ignore` with `dependency-name: typescript` and
 `update-types: ["version-update:semver-major"]`, because `pnpm run lint`
 fails under a typescript major that typescript-eslint does not support.
-Minor and patch updates of typescript still arrive.
+Minor and patch updates of typescript still arrive. The `ignore` sits on the
+`npm` entry, not on the group, because it is that ecosystem's option; the
+Dependabot documentation does not say whether an entry in a multi-ecosystem
+group may carry `ignore`, so the first weekly run is where it shows.
 
 `.github/workflows/check.yml` has one job, `check`, which main's ruleset
 requires. It installs, lints and checks the format (ESLint, Prettier,
