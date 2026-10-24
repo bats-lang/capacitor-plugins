@@ -301,3 +301,14 @@ approval turns it back to pending, until a new review names the new
 head. Every trigger runs the gate as main has it, never as the pull
 request has it; `review-gate-relay.yml` only passes formal reviews on,
 and a schedule runs the gate over every open pull request.
+
+### review-gate byte-identity
+
+`review-gate.yml` and `review-gate-relay.yml` are byte-identical copies of
+bridge's, so a hash comparison shows they are the canonical gate. They must keep
+`sha256sum` `b15a17acc60004f27d6318fb62b234928b6bdaff437c644b941813cdbc7dfd10`
+and `3909d2fd6cf9ab263f98e5a8dbb200bcc7ed7e172cc195fe6afaae5aa9fd0cc9`. Both are
+listed in `.prettierignore`: bridge's files use double quotes and this
+repository's Prettier requires single quotes, so `prettier --check .` would fail
+on them; keep the entries. A change to either file is made in bridge first and
+copied here byte for byte, never edited in place.

@@ -1,14 +1,12 @@
 name: review-gate
 
-# No pull request merges before an adversarial review (keyword: adversarial
-# review). Copied from bats-lang/bridge's
-# review-gate.yml (at 7b7d438), with the same trust and format rules.
-# This sets the commit status `adversarial-review` on each pull
-# request's head commit. It fails closed: success only for a perfectly
-# formed approval of the current head, by a trusted author, in the
-# newest review attempt, as GitHub renders it and as it is written, with
-# no standing "Request changes" review; anything else, an error
-# included, is pending.
+# No pull request merges before a review (keyword: adversarial review).
+# This sets the commit status
+# `adversarial-review` on each pull request's head commit. It fails
+# closed: success only for a perfectly formed approval of the current head,
+# by a trusted author, in the newest review attempt, as GitHub renders it
+# and as it is written, with no standing "Request changes" review; anything
+# else, an error included, is pending.
 #
 # Formal pull request reviews are read too (their text, as rendered): one
 # that is the newest review attempt makes the gate pending, never success.
@@ -40,7 +38,7 @@ on:
     workflows: [review-gate-relay]
     types: [completed]
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: "*/15 * * * *"
 
 permissions:
   pull-requests: read
@@ -54,7 +52,7 @@ jobs:
   gate:
     # An issue_comment event also fires for issues: only a pull request's counts
     if: github.event_name != 'issue_comment' || github.event.issue.pull_request
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Set the adversarial-review status
         env:
