@@ -10,8 +10,12 @@ name: check
 on:
   push:
     branches: [main]
+  # A draft pull request runs no job (keyword: draft-ci, capacitor-plugins#38),
+  # so marking it ready must start the check: ready_for_review is added to the
+  # default types
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
@@ -19,6 +23,7 @@ permissions:
 
 jobs:
   check:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-24.04
     env:
       COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
