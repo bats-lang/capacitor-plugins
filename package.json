@@ -13,10 +13,10 @@
   "devDependencies": {
     "@capacitor/docgen": "0.3.1",
     "@eslint/js": "10.0.1",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "prettier": "3.9.10",
     "prettier-plugin-java": "2.11.0",
-    "rollup": "4.65.1",
+    "rollup": "4.67.4",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1"
   }
