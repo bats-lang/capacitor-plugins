@@ -40,7 +40,7 @@ updates:
     patterns: ['*']
     cooldown:
       default-days: 7
-    # typescript-eslint support: the typescript major is ignored (CLAUDE.md)
+    # typescript majors are ignored: pnpm run lint fails under a typescript major typescript-eslint does not support yet
     ignore:
       - dependency-name: typescript
         update-types: ['version-update:semver-major']
