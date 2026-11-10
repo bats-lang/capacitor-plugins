@@ -39,16 +39,3 @@ Each plugin's own README documents its API.
   as Flutter's google_sign_in authorization client. Its demo app, to
   check it on a phone, is in its `example/`; the APK is the artifact
   of the `demo-apk` workflow's runs.
-
-## Working here
-
-```sh
-corepack pnpm install        # pnpm as package.json pins it
-corepack pnpm run lint       # ESLint and Prettier
-corepack pnpm --recursive run build   # each package: tsc, Rollup, docgen
-```
-
-Each package's Android project builds with its own Gradle wrapper
-(`./gradlew :build :test` in `packages/<name>/android`) on JDK 21. The
-rules (minimal wrappers, the justification a new plugin needs, the
-adversarial review, the pinned CI) are in [CLAUDE.md](CLAUDE.md).

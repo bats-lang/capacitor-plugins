@@ -137,60 +137,6 @@ throwaway, public demo key, checked (the key's SHA-1, the package), and
 kept as the run's artifact `google-authorize-demo-apk` (90 days), the
 owner's download. No app installs from it.
 
-## CI is pinned
-
-Every input to CI is pinned in the source, so a commit that passes
-keeps passing:
-
-- each action by its commit (the tag in a comment beside it);
-- Node by `.nvmrc`, pnpm by the root `package.json`'s `packageManager`
-  (with its hash, run through Node's corepack), and every package by
-  `pnpm-lock.yaml` (`--frozen-lockfile`);
-- the JDK by its exact release, Gradle by each Android project's wrapper
-  (its distribution's SHA-256 in `gradle-wrapper.properties`, and the
-  wrapper jar checked by Gradle's wrapper validation), and each Android
-  dependency by its exact version.
-
-Which tool moves which pin (bats-lang/capacitor-plugins#15, decided on
-bats-lang/repository-prototype#367): Dependabot
-(`.github/dependabot.yml`, weekly, a 7-day cooldown) moves the actions by
-commit with their release comments, the npm versions and `pnpm-lock.yaml`
-of the root (the workspace's packages share it, so they have no entry of
-their own), and the Gradle versions and wrapper of each
-`packages/*/android` project. Renovate moves `.nvmrc` (Node) and
-`.java-version` (the JDK) once the Renovate app is installed
-(bats-lang/repository-prototype#369), and by hand until then. The pnpm
-version in `packageManager` is moved by hand.
-
-All of Dependabot's updates arrive in one pull request (owner ruling on
-quire#795, bats-lang/capacitor-plugins#27, as quire#799 and pwa#160):
-`.github/dependabot.yml` has one top-level `multi-ecosystem-groups` group,
-`dependencies`, holding `schedule: interval: weekly` and `patterns: ["*"]`;
-the `github-actions`, `npm` and `gradle` entries each join it with
-`multi-ecosystem-group: dependencies` and `patterns: ["*"]` and have no
-`schedule` of their own, since the group carries it. Each entry keeps its own
-cooldown, ignores and directories: the group carries only the schedule and the
-patterns. A weekly run opens one pull request for the
-three ecosystems and one `check` run. Documentation:
-https://docs.github.com/en/code-security/concepts/supply-chain-security/multi-ecosystem-updates
-
-typescript major versions are ignored until typescript-eslint supports them:
-the `npm` entry has `ignore` with `dependency-name: typescript` and
-`update-types: ["version-update:semver-major"]`, because `pnpm run lint`
-fails under a typescript major that typescript-eslint does not support.
-Minor and patch updates of typescript still arrive. The `ignore` sits on the
-`npm` entry, not on the group, because it is that ecosystem's option; the
-Dependabot documentation does not say whether an entry in a multi-ecosystem
-group may carry `ignore`, so the first weekly run is where it shows.
-
-`.github/workflows/check.yml` has one job, `check`, which main's ruleset
-requires. It installs, lints and checks the format (ESLint, Prettier,
-with Prettier's Java plugin for the Android code), builds each package
-and checks that nothing committed changed, then runs each Android
-project's `./gradlew :build :test`. Never skip, disable or quarantine a
-test, and never re-run hoping for green: a red CI is root-caused and
-fixed.
-
 ## Merging
 
 Main's rulesets: "PR gates" requires `check` and `adversarial-review`,
